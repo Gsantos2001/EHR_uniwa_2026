@@ -6,7 +6,7 @@ public class PlayerCam : MonoBehaviour
     public float sensX, sensY;
     public Transform orientation;
     float xRotation, yRotation;
-
+   
     private void LateUpdate ()
     {
         Cursor.lockState = CursorLockMode.Locked;
