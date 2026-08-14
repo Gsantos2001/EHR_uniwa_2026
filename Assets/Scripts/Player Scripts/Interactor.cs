@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Interactor : MonoBehaviour
 {
@@ -13,19 +14,19 @@ public class Interactor : MonoBehaviour
         mainCamera = Camera.main;
         hotspotLayerIndex = LayerMask.NameToLayer("Hotspot");
 
-        if(hotspotLayerIndex == -1)
+        if (hotspotLayerIndex == -1)
             Debug.LogWarning("Hotspot layer not initialized");
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Keyboard.current.eKey.wasPressedThisFrame)
             shootRay();
     }
 
     private void shootRay()
     {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, rayDistance))
