@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3551482207859377290
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.2154365
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.015
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.607
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_Name
+      value: Dr Isaac Kleiner
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: db6db77d7f8a22646bdacd699b7bde51, type: 2}
+    - target: {fileID: 7745099898490096286, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: de76af3324643a8449bbf6142e260267, type: 2}
+    - target: {fileID: 7745099898490096286, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value: 
+      objectReference: {fileID: 2100000, guid: cc5b323b217898f419c5d7f1da17d95d, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 582421988024189602}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4995059585542569210}
+  m_SourcePrefab: {fileID: 100100000, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+--- !u!1 &4433810950832339419 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0fb709214c5ce5b4485223b747f0a2b1, type: 3}
+  m_PrefabInstance: {fileID: 3551482207859377290}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &582421988024189602
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4433810950832339419}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.25, z: 0}
+--- !u!114 &4995059585542569210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4433810950832339419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2c4feaef9b398e449da40547309e4dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoctorController
+  patientLocation: {fileID: 0}
+  moveSpeed: 3
+  treatmentTime: 3.3

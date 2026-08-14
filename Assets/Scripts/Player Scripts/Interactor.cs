@@ -20,7 +20,7 @@ public class Interactor : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.eKey.wasPressedThisFrame)
+        if (Keyboard.current.eKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
             shootRay();
     }
 
@@ -34,6 +34,11 @@ public class Interactor : MonoBehaviour
             if (hit.collider.gameObject.layer == hotspotLayerIndex)
             {
                 Debug.Log("Hotspot detected");
+                CallButton button = hit.collider.GetComponent<CallButton>();
+                if (button != null)
+                {
+                    button.PressButton();
+                }
             }
         }
     }
