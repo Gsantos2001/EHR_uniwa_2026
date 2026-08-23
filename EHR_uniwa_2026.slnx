@@ -48,6 +48,7 @@
   <Project Path="Unity.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.InputSystem.ForUI.csproj" />
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   <Project Path="Unity.AI.Navigation.csproj" />
   <Project Path="Unity.Collections.CodeGen.csproj" />
   <Project Path="Unity.Mathematics.Editor.csproj" />
@@ -65,6 +66,9 @@
   <Project Path="Assembly-CSharp.csproj" />
 =======
   <Project Path="Assembly-CSharp.csproj" />
+=======
+  <Project Path="Assembly-CSharp.csproj" />
+>>>>>>> Stashed changes
   <Project Path="Unity.AI.Navigation.csproj" />
   <Project Path="Unity.Collections.CodeGen.csproj" />
   <Project Path="Unity.Mathematics.Editor.csproj" />
@@ -79,6 +83,9 @@
   <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.csproj" />
   <Project Path="Unity.CollabProxy.Editor.csproj" />
   <Project Path="Unity.RenderPipeline.Universal.ShaderLibrary.csproj" />
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   <Project Path="glTFast.dots.csproj" />
   <Project Path="Unity.InternalAPIEngineBridge.004.csproj" />
