@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CallButton : MonoBehaviour
 {
-    public DoctorController doctor; // Σύνδεση με γιατρό
+    public DoctorController doctor; 
 
     public void PressButton()
     {
