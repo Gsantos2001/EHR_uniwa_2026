@@ -5,12 +5,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX, sensY;
-    public Transform orientation;
+    public float sensX = 10f, sensY = 10f;
+    public Transform orientation; // Reference to Orientation object
 
-    float xRotation, yRotation;
+    private float xRotation, yRotation;
 
-    private void LateUpdate()
+    private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -18,10 +18,12 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
+        if (Mouse.current == null) return;
+
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
-        float mouseX = mouseDelta.x * Time.deltaTime * sensX;
-        float mouseY = mouseDelta.y * Time.deltaTime * sensY;
+        float mouseX = mouseDelta.x * sensX * 0.1f;
+        float mouseY = mouseDelta.y * sensY * 0.1f;
 
         yRotation += mouseX;
         xRotation -= mouseY;
