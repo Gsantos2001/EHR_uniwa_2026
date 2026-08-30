@@ -17,7 +17,7 @@ public class ScenarioUIManager : MonoBehaviour
 
     private Coroutine currentToastCoroutine;
 
-    private void Start()
+    private void Awake()
     {
         if (scenarioEngine != null)
         {
