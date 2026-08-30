@@ -9,6 +9,10 @@ public class Interactor : MonoBehaviour
     private Camera mainCamera;
     private int hotspotLayerIndex;
 
+    [Header("Scenario Connection")]
+    [Tooltip("Σύνδεσε εδώ το GameObject που έχει το ScenarioEngine")]
+    public ScenarioEngine scenarioEngine;
+
     private void Start()
     {
         mainCamera = Camera.main;
@@ -33,11 +37,21 @@ public class Interactor : MonoBehaviour
         {
             if (hit.collider.gameObject.layer == hotspotLayerIndex)
             {
-                Debug.Log("Hotspot detected");
+                Debug.Log("Hotspot detected: " + hit.collider.gameObject.name);
+                
+                // Παλιά λογική για το CallButton
                 CallButton button = hit.collider.GetComponent<CallButton>();
                 if (button != null)
                 {
                     button.PressButton();
+                }
+
+                // Νέα λογική για το JSON Σενάριο
+                HotspotObject hotspotInfo = hit.collider.GetComponent<HotspotObject>();
+                if (hotspotInfo != null && scenarioEngine != null)
+                {
+                    // Στέλνουμε το ID (π.χ. "hs_patient") στο Engine
+                    scenarioEngine.TrySelectOptionByHotspot(hotspotInfo.hotspotId);
                 }
             }
         }

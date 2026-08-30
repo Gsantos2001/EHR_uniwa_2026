@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "scenario_meta": {
+    "id": "icu_scenario_hypoxia_v1_no_ehr",
+    "title": "ΜΕΘ: Διαχείριση Υποξαιμίας & Αναπνευστήρα (Χωρίς EHR Nodes)",
+    "description": "Σενάριο διαχείρισης πτώσης κορεσμού με χρήση αναπνευστήρα.",
+    "estimated_duration_minutes": 8,
+    "difficulty": "Intermediate",
+    "learning_goals": [
+      "Αναγνώριση κλινικού συναγερμού (SpO2)",
+      "Αλληλεπίδραση με hotspots (Αναπνευστήρας, Μόνιτορ)",
+      "Τήρηση πρωτοκόλλου κλιμάκωσης"
+    ]
+  },
+  "initial_state": {
+    "time_elapsed": 0,
+    "current_score": 100,
+    "flags": {
+      "assessment_complete": false,
+      "oxygen_adjusted": false,
+      "escalation_complete": false
+    },
+    "vitals": {
+      "hr": 110,
+      "spo2": 88,
+      "rr": 24,
+      "bp": "125/80",
+      "temp": 37.0
+    },
+    "ui": {
+      "active_hotspots": [
+        "hs_monitor",
+        "hs_patient",
+        "hs_ventilator",
+        "hs_ehr",
+        "hs_call"
+      ],
+      "monitor_alert": true
+    }
+  },
+  "hotspots": [
+    { "id": "hs_monitor", "label": "Μόνιτορ Ζωτικών (Monitor)" },
+    { "id": "hs_patient", "label": "Ασθενής/Κλίνη (Patient)" },
+    { "id": "hs_ventilator", "label": "Αναπνευστήρας (Ventilator)" },
+    { "id": "hs_ehr", "label": "Τερματικό EHR (e-Health)" },
+    { "id": "hs_call", "label": "Κουμπί Κλήσης (Call Button)" }
+  ],
+  "rules": {
+    "global_rules": [
+      {
+        "id": "rule_hypoxia_alarm",
+        "condition": {
+          "vitals.spo2": { "lt": 90 }
+        },
+        "effects": [
+          { "type": "ui_visual", "target": "hs_monitor", "state": "blinking_red" },
+          { "type": "ui_toast", "style": "danger", "message": "ΣΥΝΑΓΕΡΜΟΣ: SpO2 < 90% (Υποξαιμία)" }
+        ]
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "n1_start",
+      "type": "message",
+      "text": "Βρίσκεστε στη ΜΕΘ. Ο ασθενής στην κλίνη 1 εμφανίζει ξαφνική δύσπνοια. Το μόνιτορ χτυπάει (SpO2: 88%).",
+      "next_node_id": "n2_initial_decision"
+    },
+    {
+      "id": "n2_initial_decision",
+      "type": "decision",
+      "text": "Ποια είναι η πρώτη σου ενέργεια;",
+      "options": [
+        {
+          "id": "opt_assess",
+          "label": "Άμεση Αξιολόγηση Ασθενούς",
+          "target_hotspot": "hs_patient",
+          "effects": {
+            "score_delta": 10,
+            "state_update": { "flags.assessment_complete": true },
+            "toast": "Παρατηρείς κυάνωση και ταχύπνοια."
+          },
+          "next_node_id": "n3_intervention"
+        },
+        {
+          "id": "opt_check_monitor",
+          "label": "Έλεγχος Ιστορικού στο Μόνιτορ",
+          "target_hotspot": "hs_monitor",
+          "effects": {
+            "score_delta": 5,
+            "toast": "Βλέπεις πτώση SpO2 τα τελευταία 5 λεπτά."
+          },
+          "next_node_id": "n3_intervention"
+        }
+      ],
+      "timeout": {
+        "seconds": 30,
+        "on_timeout_effects": {
+          "vitals_update": { "spo2": 85, "hr": 120 },
+          "score_delta": -10,
+          "toast": "Καθυστέρηση! Το SpO2 έπεσε στο 85%."
+        },
+        "next_node_id": "n3_intervention"
+      }
+    },
+    {
+      "id": "n3_intervention",
+      "type": "decision",
+      "text": "Το πρόβλημα είναι οξυγοναντικό. Πρέπει να ρυθμίσεις τον αναπνευστήρα.",
+      "options": [
+        {
+          "id": "opt_increase_o2",
+          "label": "Αύξηση FiO2 (100%)",
+          "target_hotspot": "hs_ventilator",
+          "effects": {
+            "state_update": { "flags.oxygen_adjusted": true },
+            "vitals_update": { "spo2": 94, "hr": 100 },
+            "score_delta": 20,
+            "toast": "Η ρύθμιση έγινε. Το SpO2 ανεβαίνει."
+          },
+          "next_node_id": "n5_reassessment"
+        },
+        {
+          "id": "opt_do_nothing",
+          "label": "Καμία αλλαγή - Αναμονή",
+          "target_hotspot": "hs_patient",
+          "effects": {
+            "vitals_update": { "spo2": 80, "hr": 130 },
+            "score_delta": -20,
+            "toast": "Κρίσιμο λάθος. Ο ασθενής αποκορεώνεται."
+          },
+          "next_node_id": "n5_reassessment"
+        }
+      ]
+    },
+    {
+      "id": "n5_reassessment",
+      "type": "message",
+      "text": "5 λεπτά αργότερα... Η κατάσταση έχει σταθεροποιηθεί (SpO2: 94%), αλλά ο ασθενής παραμένει ταχύπνοος.",
+      "next_node_id": "n6_escalation_decision"
+    },
+    {
+      "id": "n6_escalation_decision",
+      "type": "decision",
+      "text": "Χρειάζεται περαιτέρω ενέργεια;",
+      "options": [
+        {
+          "id": "opt_call_doc",
+          "label": "Κλήση Ιατρού (Κλιμάκωση)",
+          "target_hotspot": "hs_call",
+          "effects": {
+            "state_update": { "flags.escalation_complete": true },
+            "score_delta": 10,
+            "toast": "Έγινε κλήση στον εφημερεύοντα."
+          },
+          "next_node_id": "n8_end_scenario"
+        },
+        {
+          "id": "opt_wait",
+          "label": "Όχι, συνεχίζω παρακολούθηση",
+          "target_hotspot": "hs_monitor",
+          "effects": {
+            "score_delta": 0,
+            "toast": "Συνεχίζεις την παρακολούθηση."
+          },
+          "next_node_id": "n8_end_scenario"
+        }
+      ]
+    },
+    {
+      "id": "n8_end_scenario",
+      "type": "end",
+      "text": "Το σενάριο ολοκληρώθηκε.",
+      "debrief_config": {
+        "show_score": true,
+        "show_decision_path": true,
+        "highlight_missed_docs": false,
+        "export_log": true
+      },
+      "logging": {
+        "enabled": true,
+        "log_events": ["NODE_ENTER", "HOTSPOT_INTERACTION", "OPTION_SELECTED", "VITALS_CHANGE"],
+        "export_format": "JSON"
+      }
+    }
+  ]
+}
