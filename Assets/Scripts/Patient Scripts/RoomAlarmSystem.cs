@@ -2,28 +2,23 @@ using UnityEngine;
 
 public class RoomAlarmSystem : MonoBehaviour
 {
-    [Header("Bed")]
-    public BedPatientManager bedPatientManager;
+    [Header("Engine Reference")]
+    [Tooltip("Σύνδεσε εδώ το GameObject που έχει το ScenarioEngine")]
+    public ScenarioEngine scenarioEngine;
 
     [Header("Emergency Lights")]
     public Light[] emergencyLights;
 
     [Header("Colors")]
-    public Color warningColor = new Color(1f, 0.5f, 0f);
     public Color criticalColor = Color.red;
 
     [Header("Light Settings")]
-    public float warningIntensity = 2f;
     public float criticalIntensity = 4f;
     public float flashSpeed = 4f;
 
     [Header("Audio")]
     public AudioSource alarmAudioSource;
-    public AudioClip warningAlarm;
-    public AudioClip criticalAlarm;
-    public AudioClip expiredAlarm;
-
-    private PatientStatus currentStatus;
+    public AudioClip criticalAlarm; 
 
     private bool flashing;
     private Color currentLightColor;
@@ -31,15 +26,14 @@ public class RoomAlarmSystem : MonoBehaviour
 
     private void Start()
     {
-        if (bedPatientManager == null)
+        if (scenarioEngine == null)
         {
-            Debug.LogError("RoomAlarmSystem: BedPatientManager not assigned.");
+            Debug.LogError("RoomAlarmSystem: ScenarioEngine δεν έχει συνδεθεί.");
             return;
         }
 
-        bedPatientManager.OnPatientChanged += ChangePatient;
-
-        ChangePatient(bedPatientManager.CurrentPatient);
+        // Ακούμε το δυναμικό event του JSON Engine
+        scenarioEngine.OnAlarmStateChanged += HandleAlarmState;
     }
 
     private void Update()
@@ -61,75 +55,20 @@ public class RoomAlarmSystem : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (bedPatientManager != null)
-            bedPatientManager.OnPatientChanged -= ChangePatient;
-
-        UnsubscribeFromPatient();
+        if (scenarioEngine != null)
+            scenarioEngine.OnAlarmStateChanged -= HandleAlarmState;
     }
 
-    private void ChangePatient(PatientVitals patient)
+    private void HandleAlarmState(bool isActive)
     {
-        UnsubscribeFromPatient();
-
-        if (patient == null)
+        // Αν το ScenarioEngine (βάσει JSON) πει ότι έχουμε συναγερμό
+        if (isActive)
+        {
+            StartAlarm(criticalColor, criticalIntensity, criticalAlarm);
+        }
+        else
         {
             StopAlarm();
-            return;
-        }
-
-        currentStatus = patient.GetComponent<PatientStatus>();
-
-        if (currentStatus == null)
-        {
-            StopAlarm();
-            return;
-        }
-
-        currentStatus.OnConditionChanged += HandleConditionChanged;
-
-        HandleConditionChanged(currentStatus.CurrentCondition);
-    }
-
-    private void UnsubscribeFromPatient()
-    {
-        if (currentStatus != null)
-            currentStatus.OnConditionChanged -= HandleConditionChanged;
-
-        currentStatus = null;
-    }
-
-    private void HandleConditionChanged(PatientCondition condition)
-    {
-        switch (condition)
-        {
-            case PatientCondition.NoPatient:
-            case PatientCondition.Normal:
-                StopAlarm();
-                break;
-
-            case PatientCondition.Warning:
-                StartAlarm(
-                    warningColor,
-                    warningIntensity,
-                    warningAlarm
-                );
-                break;
-
-            case PatientCondition.Critical:
-                StartAlarm(
-                    criticalColor,
-                    criticalIntensity,
-                    criticalAlarm
-                );
-                break;
-
-            case PatientCondition.Expired:
-                StartAlarm(
-                    criticalColor,
-                    criticalIntensity,
-                    expiredAlarm
-                );
-                break;
         }
     }
 

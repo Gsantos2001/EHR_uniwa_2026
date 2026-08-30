@@ -117,22 +117,17 @@ public class PatientVitalsUI : MonoBehaviour
             return;
         }
 
-        heartRateText.text =
-            "Heart Rate: " +
-            currentPatient.HeartRate.ToString("0") +
-            " BPM";
+        if (heartRateText != null)
+            heartRateText.text = "Heart Rate: " + currentPatient.HeartRate.ToString("0") + " BPM";
 
-        oxygenText.text =
-            "SpO2: " +
-            currentPatient.OxygenSaturation.ToString("0") +
-            " %";
+        if (oxygenText != null)
+            oxygenText.text = "SpO2: " + currentPatient.OxygenSaturation.ToString("0") + " %";
 
-        bloodPressureText.text =
-            "Blood Pressure: " +
-            currentPatient.SystolicPressure.ToString("0") +
-            "/" +
-            currentPatient.DiastolicPressure.ToString("0") +
-            " mmHg";
+        if (bloodPressureText != null)
+        {
+            string bp = string.IsNullOrEmpty(currentPatient.BloodPressure) ? "--/--" : currentPatient.BloodPressure;
+            bloodPressureText.text = "Blood Pressure: " + bp + " mmHg";
+        }
     }
 
     private void UpdateCondition(PatientCondition condition)
@@ -163,60 +158,58 @@ public class PatientVitalsUI : MonoBehaviour
 
     private void ShowNoPatient()
     {
-        heartRateText.text = "Heart Rate: --";
-        oxygenText.text = "SpO2: --";
-        bloodPressureText.text = "Blood Pressure: --/--";
+        if (heartRateText != null) { heartRateText.text = "Heart Rate: --"; heartRateText.color = notAssignedColor; }
+        if (oxygenText != null) { oxygenText.text = "SpO2: --"; oxygenText.color = notAssignedColor; }
+        if (bloodPressureText != null) { bloodPressureText.text = "Blood Pressure: --"; bloodPressureText.color = notAssignedColor; }
 
-        heartRateText.color = notAssignedColor;
-        oxygenText.color = notAssignedColor;
-        bloodPressureText.color = notAssignedColor;
-
-        statusText.text = "NO PATIENT ON BED";
-        statusText.color = notAssignedColor;
+        if (statusText != null)
+        {
+            statusText.text = "NO PATIENT ON BED";
+            statusText.color = notAssignedColor;
+        }
 
         shouldBlink = false;
     }
 
     private void ShowNormal()
     {
-        heartRateText.color = normalColor;
-        oxygenText.color = normalColor;
-        bloodPressureText.color = normalColor;
+        SetVitalsColor(normalColor);
 
-        statusText.text = "";
+        if (statusText != null) statusText.text = "";
         shouldBlink = false;
     }
 
     private void ShowWarning()
     {
-        heartRateText.color = warningColor;
-        oxygenText.color = warningColor;
-        bloodPressureText.color = warningColor;
+        SetVitalsColor(warningColor);
 
-        statusText.text = "WARNING";
+        if (statusText != null) statusText.text = "WARNING";
         currentStatusColor = warningColor;
         shouldBlink = true;
     }
 
     private void ShowCritical()
     {
-        heartRateText.color = criticalColor;
-        oxygenText.color = criticalColor;
-        bloodPressureText.color = criticalColor;
+        SetVitalsColor(criticalColor);
 
-        statusText.text = "CRITICAL CONDITION";
+        if (statusText != null) statusText.text = "CRITICAL CONDITION";
         currentStatusColor = criticalColor;
         shouldBlink = true;
     }
 
     private void ShowExpired()
     {
-        heartRateText.color = criticalColor;
-        oxygenText.color = criticalColor;
-        bloodPressureText.color = criticalColor;
+        SetVitalsColor(criticalColor);
 
-        statusText.text = "PATIENT EXPIRED";
+        if (statusText != null) statusText.text = "PATIENT EXPIRED";
         currentStatusColor = criticalColor;
         shouldBlink = true;
+    }
+
+    private void SetVitalsColor(Color color)
+    {
+        if (heartRateText != null) heartRateText.color = color;
+        if (oxygenText != null) oxygenText.color = color;
+        if (bloodPressureText != null) bloodPressureText.color = color;
     }
 }
