@@ -464,6 +464,7 @@ GameObject:
   - component: {fileID: 3334767733608342861}
   - component: {fileID: 1170516050159796922}
   - component: {fileID: 8053749332361546293}
+  - component: {fileID: 332937049252157023}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -623,6 +624,24 @@ MonoBehaviour:
   promptText: {fileID: 2381092783577301061}
   defaultPromptMessage: '[E] Interact'
   scenarioEngine: {fileID: 0}
+--- !u!114 &332937049252157023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7033550746164665063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1133327063fd09742bad5e6db0c5d278, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HotspotCameraController
+  playerMovement: {fileID: 3634160786192731104}
+  playerCam: {fileID: 1170516050159796922}
+  interactor: {fileID: 8053749332361546293}
+  handCamera: {fileID: 886481696914953435}
+  crosshairUI: {fileID: 2311051290084802178}
+  transitionSpeed: 5
 --- !u!1 &7680668535188943624
 GameObject:
   m_ObjectHideFlags: 0

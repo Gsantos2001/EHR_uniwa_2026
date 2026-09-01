@@ -15,16 +15,28 @@ public class Interactor : MonoBehaviour
     public TextMeshProUGUI promptText; 
     public string defaultPromptMessage = "[E] - Interact";
 
+    [Header("Default Text Positions")]
+    public Vector2 defaultWalkingTextPosition = new Vector2(0f, -200f);
+    public Vector2 defaultFocusTextPosition = new Vector2(0f, -350f);
+
     [Header("Scenario Connection")]
-    [Tooltip("Σύνδεσε εδώ το GameObject που έχει το ScenarioEngine")]
     public ScenarioEngine scenarioEngine;
 
     private GameObject currentHoveredHotspot;
+    private HotspotFocusPoint activeFocusedPoint;
+    private HotspotCameraController cameraController;
+    private RectTransform promptTextRect;
 
     private void Start()
     {
         mainCamera = Camera.main;
+        cameraController = mainCamera.GetComponent<HotspotCameraController>();
         hotspotLayerIndex = LayerMask.NameToLayer("Hotspot");
+
+        if (promptText != null)
+        {
+            promptTextRect = promptText.GetComponent<RectTransform>();
+        }
 
         if (hotspotLayerIndex == -1)
             Debug.LogWarning("Hotspot layer not initialized");
@@ -37,23 +49,81 @@ public class Interactor : MonoBehaviour
 
     private void Update()
     {
+        bool isFocused = cameraController != null && cameraController.IsFocused;
+
+        if (!isFocused && activeFocusedPoint != null)
+        {
+            activeFocusedPoint = null;
+        }
+
         HandleHover();
 
-        if (Keyboard.current.eKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        if (!isFocused)
         {
-            Interact();
+            if (Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                TryInteractOrFocus();
+            }
+        }
+        else
+        {
+            // If we are currently holding/dragging a knob, don't re-trigger standard click actions
+            if (DialKnobController.ActiveDial != null && DialKnobController.ActiveDial.IsDragging)
+            {
+                return;
+            }
+
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                TriggerHotspotAction();
+            }
         }
     }
 
     private void HandleHover()
     {
-        Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        // Don't modify prompts or raycast targets mid-drag
+        if (DialKnobController.ActiveDial != null && DialKnobController.ActiveDial.IsDragging)
+        {
+            if (promptText != null)
+            {
+                promptText.text = "Drag Mouse to Adjust Oxygen Flow";
+                promptText.gameObject.SetActive(true);
+            }
+            return;
+        }
+
+        Ray ray;
+        bool isFocused = cameraController != null && cameraController.IsFocused;
+
+        if (isFocused)
+        {
+            ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        }
+        else
+        {
+            ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        }
+
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, rayDistance))
         {
             if (hit.collider.gameObject.layer == hotspotLayerIndex)
             {
+                if (isFocused && activeFocusedPoint != null)
+                {
+                    bool isTargetFocusedObject = hit.collider.transform.IsChildOf(activeFocusedPoint.transform) ||
+                                                 hit.collider.gameObject == activeFocusedPoint.gameObject;
+
+                    if (!isTargetFocusedObject)
+                    {
+                        ClearHover();
+                        ShowExitPromptOnly();
+                        return;
+                    }
+                }
+
                 HotspotObject hotspotInfo = hit.collider.GetComponent<HotspotObject>();
                 if (hotspotInfo == null)
                     hotspotInfo = hit.collider.GetComponentInParent<HotspotObject>();
@@ -62,16 +132,32 @@ public class Interactor : MonoBehaviour
                 {
                     currentHoveredHotspot = hit.collider.gameObject;
 
-                    // Debug.Log($"[Hovering Hotspot] Target: {hit.collider.gameObject.name} | ID: {hotspotInfo.hotspotId}");
+                    UpdateTextPosition(currentHoveredHotspot, isFocused);
 
                     string rawName = hotspotInfo.hotspotId.Replace("hs_", "").Replace("_", " ").Replace("-", " ");
-                    
                     TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
                     string formattedName = textInfo.ToTitleCase(rawName.ToLower());
 
                     if (promptText != null)
                     {
-                        promptText.text = $"[E] - {formattedName}";
+                        if (isFocused)
+                        {
+                            DialKnobController dial = currentHoveredHotspot.GetComponentInParent<DialKnobController>();
+                            if (dial == null) dial = currentHoveredHotspot.GetComponent<DialKnobController>();
+
+                            if (dial != null)
+                            {
+                                promptText.text = "[Click & Drag] to turn dial | [Right-Click] - Exit";
+                            }
+                            else
+                            {
+                                promptText.text = "[Click] | [Right-Click] - Exit";
+                            }
+                        }
+                        else
+                        {
+                            promptText.text = $"[E] - {formattedName}";
+                        }
                         promptText.gameObject.SetActive(true);
                     }
                     return;
@@ -80,15 +166,88 @@ public class Interactor : MonoBehaviour
         }
 
         ClearHover();
+
+        if (isFocused)
+        {
+            ShowExitPromptOnly();
+        }
     }
 
-    private void Interact()
+    private void ShowExitPromptOnly()
+    {
+        if (promptText != null)
+        {
+            UpdateTextPosition(activeFocusedPoint != null ? activeFocusedPoint.gameObject : null, true);
+            promptText.text = "[Right-Click] - Exit";
+            promptText.gameObject.SetActive(true);
+        }
+    }
+
+    private void UpdateTextPosition(GameObject targetHotspot, bool isFocused)
+    {
+        if (promptTextRect == null) return;
+
+        if (isFocused)
+        {
+            HotspotFocusPoint focusPoint = null;
+            if (targetHotspot != null)
+            {
+                focusPoint = targetHotspot.GetComponentInParent<HotspotFocusPoint>();
+                if (focusPoint == null) focusPoint = targetHotspot.GetComponent<HotspotFocusPoint>();
+            }
+
+            if (focusPoint == null) focusPoint = activeFocusedPoint;
+
+            if (focusPoint != null && focusPoint.useCustomTextPosition)
+            {
+                promptTextRect.anchoredPosition = focusPoint.customTextPosition;
+            }
+            else
+            {
+                promptTextRect.anchoredPosition = defaultFocusTextPosition;
+            }
+        }
+        else
+        {
+            promptTextRect.anchoredPosition = defaultWalkingTextPosition;
+        }
+    }
+
+    private void TryInteractOrFocus()
     {
         if (currentHoveredHotspot == null) return;
 
-        Debug.Log("Hotspot interacted: " + currentHoveredHotspot.name);
+        HotspotObject hotspotInfo = currentHoveredHotspot.GetComponentInParent<HotspotObject>();
+        if (hotspotInfo == null) hotspotInfo = currentHoveredHotspot.GetComponent<HotspotObject>();
 
-        HidePrompt();
+        bool isPatient = hotspotInfo != null && hotspotInfo.hotspotId.ToLower().Contains("patient");
+
+        HotspotFocusPoint focusPoint = currentHoveredHotspot.GetComponentInParent<HotspotFocusPoint>();
+        if (focusPoint == null) focusPoint = currentHoveredHotspot.GetComponent<HotspotFocusPoint>();
+
+        if (!isPatient && focusPoint != null && focusPoint.cameraFocusTarget != null && cameraController != null)
+        {
+            activeFocusedPoint = focusPoint;
+            cameraController.FocusOnTarget(focusPoint.cameraFocusTarget);
+        }
+        else
+        {
+            TriggerHotspotAction();
+        }
+    }
+
+    private void TriggerHotspotAction()
+    {
+        if (currentHoveredHotspot == null) return;
+
+        DialKnobController dial = currentHoveredHotspot.GetComponentInParent<DialKnobController>();
+        if (dial == null) dial = currentHoveredHotspot.GetComponentInChildren<DialKnobController>();
+
+        if (dial != null)
+        {
+            dial.StartDragging();
+            return; 
+        }
 
         CallButton button = currentHoveredHotspot.GetComponentInParent<CallButton>();
         if (button != null)
@@ -102,7 +261,11 @@ public class Interactor : MonoBehaviour
             scenarioEngine.TrySelectOptionByHotspot(hotspotInfo.hotspotId);
         }
 
-        currentHoveredHotspot = null;
+        if (cameraController != null && cameraController.IsFocused)
+        {
+            activeFocusedPoint = null;
+            cameraController.ExitFocus();
+        }
     }
 
     private void ClearHover()
