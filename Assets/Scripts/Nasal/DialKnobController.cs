@@ -41,7 +41,6 @@ public class DialKnobController : MonoBehaviour
     {
         if (!IsDragging) return;
 
-        // Release drag when left mouse button is unpressed
         if (!Mouse.current.leftButton.isPressed)
         {
             StopDragging();
@@ -53,7 +52,6 @@ public class DialKnobController : MonoBehaviour
 
     public void StartDragging()
     {
-        // Don't block if previously attempted at the wrong time; reset every drag!
         ResetKnob(); 
 
         IsDragging = true;
@@ -78,7 +76,6 @@ public class DialKnobController : MonoBehaviour
 
         transform.localRotation = initialLocalRotation * Quaternion.AngleAxis(currentAngle, rotationAxis);
 
-        // Reached max angle
         if (currentAngle >= maxAngle - 1f && !hasTriggered)
         {
             hasTriggered = true;
@@ -91,10 +88,9 @@ public class DialKnobController : MonoBehaviour
     {
         if (scenarioEngine != null)
         {
-            // Triggers scenario option execution
             scenarioEngine.TrySelectOptionByHotspot(hotspotId);
         }
-
+        
         if (cameraController != null && cameraController.IsFocused)
         {
             cameraController.ExitFocus();
@@ -104,7 +100,7 @@ public class DialKnobController : MonoBehaviour
     public void ResetKnob()
     {
         currentAngle = minAngle;
-        hasTriggered = false; // Reset trigger state so the knob can be turned again!
+        hasTriggered = false; 
         IsDragging = false;
         transform.localRotation = initialLocalRotation;
     }
