@@ -6,7 +6,9 @@ using UnityEngine.InputSystem;
 public class PlayerCam : MonoBehaviour
 {
     public float sensX = 10f, sensY = 10f;
-    public Transform orientation; // Reference to Orientation object
+    public Transform orientation;
+
+    public bool inputEnabled = true;
 
     private float xRotation, yRotation;
 
@@ -18,7 +20,11 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
-        if (Mouse.current == null) return;
+        if (!inputEnabled)
+            return;
+
+        if (Mouse.current == null)
+            return;
 
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
@@ -27,11 +33,28 @@ public class PlayerCam : MonoBehaviour
 
         yRotation += mouseX;
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        xRotation = Mathf.Clamp(
+            xRotation,
+            -90f,
+            90f
+        );
+
+        transform.rotation =
+            Quaternion.Euler(
+                xRotation,
+                yRotation,
+                0
+            );
 
         if (orientation != null)
-            orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+        {
+            orientation.rotation =
+                Quaternion.Euler(
+                    0,
+                    yRotation,
+                    0
+                );
+        }
     }
 }

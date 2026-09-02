@@ -236,38 +236,82 @@ public class Interactor : MonoBehaviour
         }
     }
 
-    private void TriggerHotspotAction()
+   private void TriggerHotspotAction()
     {
-        if (currentHoveredHotspot == null) return;
+        if (currentHoveredHotspot == null)
+            return;
 
-        DialKnobController dial = currentHoveredHotspot.GetComponentInParent<DialKnobController>();
-        if (dial == null) dial = currentHoveredHotspot.GetComponentInChildren<DialKnobController>();
+        // Dial
+        DialKnobController dial =
+            currentHoveredHotspot.GetComponentInParent<DialKnobController>();
+
+        if (dial == null)
+        {
+            dial =
+                currentHoveredHotspot.GetComponentInChildren<DialKnobController>();
+        }
 
         if (dial != null)
         {
             dial.StartDragging();
-            return; 
+            return;
         }
 
-        CallButton button = currentHoveredHotspot.GetComponentInParent<CallButton>();
+        // Call Button
+        CallButton button =
+            currentHoveredHotspot.GetComponentInParent<CallButton>();
+
         if (button != null)
         {
             button.PressButton();
         }
 
-        HotspotObject hotspotInfo = currentHoveredHotspot.GetComponentInParent<HotspotObject>();
-        if (hotspotInfo != null && scenarioEngine != null)
+        // EHR
+        EHRHotspot ehrHotspot =
+            currentHoveredHotspot.GetComponentInParent<EHRHotspot>();
+
+        if (ehrHotspot == null)
         {
-            scenarioEngine.TrySelectOptionByHotspot(hotspotInfo.hotspotId);
+            ehrHotspot =
+                currentHoveredHotspot.GetComponent<EHRHotspot>();
         }
 
-        if (cameraController != null && cameraController.IsFocused)
+        if (ehrHotspot != null)
+        {
+            Debug.Log("Interactor: Opening EHR");
+
+            ehrHotspot.OpenEHR();
+
+            if (cameraController != null &&
+                cameraController.IsFocused)
+            {
+                activeFocusedPoint = null;
+                cameraController.ExitFocus();
+            }
+
+            return;
+        }
+
+        // Scenario
+        HotspotObject hotspotInfo =
+            currentHoveredHotspot.GetComponentInParent<HotspotObject>();
+
+        if (hotspotInfo != null &&
+            scenarioEngine != null)
+        {
+            scenarioEngine.TrySelectOptionByHotspot(
+                hotspotInfo.hotspotId
+            );
+        }
+
+        // Exit focus
+        if (cameraController != null &&
+            cameraController.IsFocused)
         {
             activeFocusedPoint = null;
             cameraController.ExitFocus();
         }
     }
-
     private void ClearHover()
     {
         currentHoveredHotspot = null;
