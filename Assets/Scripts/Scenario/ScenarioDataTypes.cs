@@ -28,8 +28,18 @@ public class InitialState
 {
     public int time_elapsed;
     public int current_score;
+    public PatientInfoData patient_info;
     public Dictionary<string, bool> flags;
     public Dictionary<string, object> vitals; // Αποθήκευση HR, SpO2, κλπ.
+}
+
+[System.Serializable]
+public class PatientInfoData
+{
+    public string full_name;
+    public int age;
+    public string location;
+    public string admission_diagnosis;
 }
 
 [System.Serializable]

@@ -106,5 +106,3 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 *.lscache
-Assets/Scripts/Scenario/Scenario_Originals.zip
-Assets/Scripts/Scenario/Scenario_Originals.zip.meta

@@ -7,7 +7,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed = 5.0f;
-
+    public bool inputEnabled = true;
     public Transform orientation;
 
     float horizontalInput;
@@ -25,11 +25,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (!inputEnabled)
+        {
+            horizontalInput = 0f;
+            verticalInput = 0f;
+            return;
+        }
+
         MyInput();
     }
 
     private void FixedUpdate()
     {
+        if (!inputEnabled)
+            return;
+
         MovePlayer();
     }
 

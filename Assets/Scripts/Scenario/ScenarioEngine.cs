@@ -7,15 +7,42 @@ using System.Linq;
 public class ScenarioEngine : MonoBehaviour
 {
     [Header("Dependencies")]
-    [Tooltip("Σύνδεσε εδώ το υπάρχον PatientVitals script του ασθενούς.")]
+    [Tooltip("Patient Vitals.")]
     public PatientVitals patientVitals;
-    
+    [Tooltip("EHRManager.")]
+    public EHRManager ehrManager;
     [Header("Scenario Data")]
     public TextAsset jsonScenarioFile; 
-
+    [Header("Logging")]
+    public ScenarioLogger scenarioLogger;
     private ScenarioData currentScenario;
     private Dictionary<string, ScenarioNode> nodeDictionary;
     private ScenarioNode currentNode;
+
+    
+    
+    public int CurrentScore
+    {
+        get
+        {
+            return currentScore;
+        }
+    }
+    public string CurrentNodeId
+    {
+        get
+        {
+            return currentNode != null ? currentNode.id : "";
+        }
+    }
+
+    public string CurrentNodeType
+    {
+        get
+        {
+            return currentNode != null ? currentNode.type : "";
+        }
+    }
     
     // Game State
     private int currentScore;
@@ -56,7 +83,7 @@ public class ScenarioEngine : MonoBehaviour
         
         currentScore = currentScenario.initial_state.current_score;
         stateFlags = currentScenario.initial_state.flags ?? new Dictionary<string, bool>();
-
+        InitPatientInfo(currentScenario.initial_state.patient_info);
         InitVitals(currentScenario.initial_state.vitals);
         nodeDictionary = currentScenario.nodes.ToDictionary(n => n.id, n => n);
 
@@ -83,7 +110,18 @@ public class ScenarioEngine : MonoBehaviour
         }
 
         currentNode = nodeDictionary[nodeId];
-        
+
+        if (scenarioLogger != null)
+        {
+            scenarioLogger.LogEvent(
+                "NODE_ENTER",
+                currentNode.id,
+                currentNode.type,
+                currentNode.text,
+                currentScore
+            );
+        }
+
         Debug.Log($"--- Είσοδος στον κόμβο: {currentNode.id} ---");
         if (!string.IsNullOrEmpty(currentNode.text))
         {
@@ -110,8 +148,16 @@ public class ScenarioEngine : MonoBehaviour
                 Debug.Log("Βρέθηκε Gate Node (Αναμονή για EHR implementation).");
                 break;
             case "end":
-                Debug.Log($"Τέλος σεναρίου! Τελικό Σκορ: {currentScore}");
-                break;
+                Debug.Log(
+                $"Τέλος σεναρίου! Τελικό Σκορ: {currentScore}"
+            );
+
+            if (scenarioLogger != null)
+            {
+                scenarioLogger.ExportJSON();
+            }
+
+            break;
         }
     }
 
@@ -119,9 +165,24 @@ public class ScenarioEngine : MonoBehaviour
     {
         if (currentNode == null || currentNode.type != "decision") return;
 
-        var option = currentNode.options.FirstOrDefault(o => o.id == optionId);
+        var option =
+            currentNode.options.FirstOrDefault(
+                o => o.id == optionId
+            );
+
         if (option != null)
         {
+            if (scenarioLogger != null)
+            {
+                scenarioLogger.LogEvent(
+                    "OPTION_SELECTED",
+                    currentNode.id,
+                    option.id,
+                    option.label,
+                    currentScore
+                );
+            }
+
             ApplyEffects(option.effects);
             GoToNode(option.next_node_id);
         }
@@ -181,7 +242,21 @@ public class ScenarioEngine : MonoBehaviour
         {
             foreach (var kvp in effects.state_update)
             {
-                stateFlags[kvp.Key] = kvp.Value;
+                string flagKey = kvp.Key;
+
+                if (flagKey.StartsWith("flags."))
+                {
+                    flagKey = flagKey.Substring("flags.".Length);
+                }
+
+                stateFlags[flagKey] = kvp.Value;
+
+                Debug.Log(
+                    "STATE FLAG: " +
+                    flagKey +
+                    " = " +
+                    kvp.Value
+                );
             }
         }
 
@@ -211,6 +286,29 @@ public class ScenarioEngine : MonoBehaviour
 
         if (newVitals.ContainsKey("temp"))
             patientVitals.SetTemperature(newVitals["temp"]);
+    }
+
+
+    private void InitPatientInfo(PatientInfoData info)
+    {
+        if (info == null || ehrManager == null)
+            return;
+
+        ehrManager.patientInfo.fullName = info.full_name;
+        ehrManager.patientInfo.age = info.age;
+        ehrManager.patientInfo.location = info.location;
+        ehrManager.patientInfo.admissionDiagnosis = info.admission_diagnosis;
+
+        Debug.Log(
+            "Patient loaded from JSON: " +
+            ehrManager.patientInfo.fullName +
+            " | Age: " +
+            ehrManager.patientInfo.age +
+            " | Location: " +
+            ehrManager.patientInfo.location +
+            " | Diagnosis: " +
+            ehrManager.patientInfo.admissionDiagnosis
+        );
     }
 
     private void InitVitals(Dictionary<string, object> initialVitals)
@@ -293,5 +391,114 @@ public class ScenarioEngine : MonoBehaviour
             OnAlarmStateChanged?.Invoke(isAlarmActive);
             wasAlarmActive = isAlarmActive;
         }
+    }
+
+
+    public bool TryCompleteCurrentEHRGate(
+        EHRManager ehrManager,
+        out string feedback)
+    {
+        feedback = "";
+
+        if (currentNode == null)
+        {
+            feedback = "No active scenario node.";
+            return false;
+        }
+
+    if (currentNode.type != "gate")
+    {
+        feedback =
+            "Documentation saved.\n" +
+            "No documentation gate is currently active.";
+
+        return false;
+    }
+
+        if (ehrManager == null)
+        {
+            feedback = "EHR system is not available.";
+            return false;
+        }
+
+        bool gateComplete = false;
+
+        // Gate 1
+        if (currentNode.id == "n4_gate_documentation_1")
+        {
+            gateComplete =
+                ehrManager.DocumentationGate1Complete();
+
+            if (!gateComplete)
+            {
+                feedback =
+                    "Documentation incomplete.\n" +
+                    "Required: Observation and FiO2 Setting.";
+
+                if (!string.IsNullOrEmpty(currentNode.feedback_blocked))
+                {
+                    OnToastRequested?.Invoke(
+                        currentNode.feedback_blocked,
+                        "danger"
+                    );
+                }
+
+                return false;
+            }
+        }
+
+        // Gate 2
+        else if (currentNode.id == "n7_gate_documentation_2")
+        {
+            gateComplete =
+                ehrManager.DocumentationGate2Complete();
+
+            if (!gateComplete)
+            {
+                feedback =
+                    "Documentation incomplete.\n" +
+                    "Required: Recipient and Outcome.";
+
+                if (!string.IsNullOrEmpty(currentNode.feedback_blocked))
+                {
+                    OnToastRequested?.Invoke(
+                        currentNode.feedback_blocked,
+                        "danger"
+                    );
+                }
+
+                return false;
+            }
+        }
+
+        else
+        {
+            feedback = "Unknown documentation gate.";
+            return false;
+        }
+
+        // Gate passed
+        ApplyEffects(currentNode.effects_on_pass);
+
+        feedback =
+            !string.IsNullOrEmpty(currentNode.feedback_success)
+            ? currentNode.feedback_success
+            : "Documentation complete.";
+
+        OnToastRequested?.Invoke(
+            feedback,
+            "info"
+        );
+
+        string nextNodeId = currentNode.next_node_id;
+
+        Debug.Log(
+            "EHR Gate completed: " +
+            currentNode.id
+        );
+
+        GoToNode(nextNodeId);
+
+        return true;
     }
 }

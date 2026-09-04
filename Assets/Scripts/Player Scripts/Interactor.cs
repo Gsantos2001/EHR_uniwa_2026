@@ -10,7 +10,7 @@ public class Interactor : MonoBehaviour
     public float rayDistance = 100f;
     private Camera mainCamera;
     private int hotspotLayerIndex;
-
+    
     [Header("UI Settings")]
     public TextMeshProUGUI promptText; 
     public string defaultPromptMessage = "[E] - Interact";
@@ -26,6 +26,8 @@ public class Interactor : MonoBehaviour
     private HotspotFocusPoint activeFocusedPoint;
     private HotspotCameraController cameraController;
     private RectTransform promptTextRect;
+    [Header("Logging")]
+    public ScenarioLogger scenarioLogger;
 
     private void Start()
     {
@@ -236,19 +238,56 @@ public class Interactor : MonoBehaviour
         }
     }
 
-   private void TriggerHotspotAction()
+    private void TriggerHotspotAction()
     {
         if (currentHoveredHotspot == null)
             return;
 
-        // Dial
+        // HOTSPOT INFO
+
+        HotspotObject hotspotInfo =
+            currentHoveredHotspot.GetComponentInParent<HotspotObject>();
+
+        if (hotspotInfo == null)
+        {
+            hotspotInfo =
+                currentHoveredHotspot.GetComponent<HotspotObject>();
+        }
+
+        // LOG HOTSPOT INTERACTION
+
+        if (hotspotInfo != null &&
+            scenarioLogger != null)
+        {
+            scenarioLogger.LogEvent(
+                "HOTSPOT_INTERACTION",
+
+                scenarioEngine != null
+                    ? scenarioEngine.CurrentNodeId
+                    : "",
+
+                hotspotInfo.hotspotId,
+
+                "Player interacted with hotspot " +
+                hotspotInfo.hotspotId,
+
+                scenarioEngine != null
+                    ? scenarioEngine.CurrentScore
+                    : 0
+            );
+        }
+
+        // DIAL
+
         DialKnobController dial =
-            currentHoveredHotspot.GetComponentInParent<DialKnobController>();
+            currentHoveredHotspot
+                .GetComponentInParent<DialKnobController>();
 
         if (dial == null)
         {
             dial =
-                currentHoveredHotspot.GetComponentInChildren<DialKnobController>();
+                currentHoveredHotspot
+                    .GetComponentInChildren<DialKnobController>();
         }
 
         if (dial != null)
@@ -257,9 +296,11 @@ public class Interactor : MonoBehaviour
             return;
         }
 
-        // Call Button
+        // CALL BUTTON
+
         CallButton button =
-            currentHoveredHotspot.GetComponentInParent<CallButton>();
+            currentHoveredHotspot
+                .GetComponentInParent<CallButton>();
 
         if (button != null)
         {
@@ -267,13 +308,16 @@ public class Interactor : MonoBehaviour
         }
 
         // EHR
+
         EHRHotspot ehrHotspot =
-            currentHoveredHotspot.GetComponentInParent<EHRHotspot>();
+            currentHoveredHotspot
+                .GetComponentInParent<EHRHotspot>();
 
         if (ehrHotspot == null)
         {
             ehrHotspot =
-                currentHoveredHotspot.GetComponent<EHRHotspot>();
+                currentHoveredHotspot
+                    .GetComponent<EHRHotspot>();
         }
 
         if (ehrHotspot != null)
@@ -281,6 +325,8 @@ public class Interactor : MonoBehaviour
             Debug.Log("Interactor: Opening EHR");
 
             ehrHotspot.OpenEHR();
+
+            // Το hotspot έχει ήδη καταγραφεί παραπάνω.
 
             if (cameraController != null &&
                 cameraController.IsFocused)
@@ -292,9 +338,7 @@ public class Interactor : MonoBehaviour
             return;
         }
 
-        // Scenario
-        HotspotObject hotspotInfo =
-            currentHoveredHotspot.GetComponentInParent<HotspotObject>();
+        // SEND HOTSPOT TO SCENARIO
 
         if (hotspotInfo != null &&
             scenarioEngine != null)
@@ -304,7 +348,8 @@ public class Interactor : MonoBehaviour
             );
         }
 
-        // Exit focus
+        // EXIT CAMERA FOCUS
+
         if (cameraController != null &&
             cameraController.IsFocused)
         {

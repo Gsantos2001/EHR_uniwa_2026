@@ -23,6 +23,9 @@ public class EHRManager : MonoBehaviour
     public List<VitalsHistoryEntry> vitalsHistory =
         new List<VitalsHistoryEntry>();
 
+    [Header("Logging")]
+    public ScenarioLogger scenarioLogger;
+    public ScenarioEngine scenarioEngine;
     private PatientVitals currentPatient;
 
     private void Start()
@@ -85,9 +88,26 @@ public class EHRManager : MonoBehaviour
         if (currentPatient == null)
             return;
 
+        if (vitalsHistory.Count > 0)
+        {
+            VitalsHistoryEntry lastEntry =
+                vitalsHistory[vitalsHistory.Count - 1];
+
+            bool sameVitals =
+                Mathf.Approximately(lastEntry.heartRate, currentPatient.HeartRate) &&
+                Mathf.Approximately(lastEntry.oxygenSaturation, currentPatient.OxygenSaturation) &&
+                Mathf.Approximately(lastEntry.systolicPressure, currentPatient.SystolicPressure) &&
+                Mathf.Approximately(lastEntry.diastolicPressure, currentPatient.DiastolicPressure);
+
+            if (sameVitals)
+            {
+                return;
+            }
+        }
+
         VitalsHistoryEntry entry =
             new VitalsHistoryEntry(
-                DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                System.DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                 currentPatient.HeartRate,
                 currentPatient.OxygenSaturation,
                 currentPatient.SystolicPressure,
@@ -95,13 +115,32 @@ public class EHRManager : MonoBehaviour
             );
 
         vitalsHistory.Add(entry);
+        if (scenarioLogger != null && scenarioEngine != null && !string.IsNullOrEmpty(scenarioEngine.CurrentNodeId))
+        {
+            string details =
+                "BP=" +
+                entry.systolicPressure.ToString("0") +
+                "/" +
+                entry.diastolicPressure.ToString("0") +
+                ", SpO2=" +
+                entry.oxygenSaturation.ToString("0") +
+                "%, HR=" +
+                entry.heartRate.ToString("0");
+
+            scenarioLogger.LogEvent(
+                "VITALS_CHANGE",
+                scenarioEngine.CurrentNodeId,
+                "patient_vitals",
+                details,
+                scenarioEngine.CurrentScore
+            );
+        }
 
         Debug.Log(
             "EHR VITALS: " +
             entry.dateTime +
             " | BP " +
-            entry.systolicPressure +
-            "/" +
+            entry.systolicPressure + "/" +
             entry.diastolicPressure +
             " | SpO2 " +
             entry.oxygenSaturation +
@@ -109,7 +148,6 @@ public class EHRManager : MonoBehaviour
             entry.heartRate
         );
     }
-
     public bool DocumentationGate1Complete()
     {
         return
