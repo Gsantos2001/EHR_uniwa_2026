@@ -116,6 +116,19 @@ public class EHRUI : MonoBehaviour
                 ehrManager.patientInfo.admissionDiagnosis;
         }
 
+        // LOAD SAVED DATA INTO INPUT FIELDS
+        if (observationInput != null) observationInput.text = ehrManager.assessment.observation ?? "";
+        if (skinColorInput != null) skinColorInput.text = ehrManager.assessment.skinColor ?? "";
+        if (consciousnessInput != null) consciousnessInput.text = ehrManager.assessment.consciousness ?? "";
+
+        if (deviceInput != null) deviceInput.text = ehrManager.intervention.device ?? "";
+        if (fiO2Input != null) fiO2Input.text = ehrManager.intervention.fiO2Setting ?? "";
+        if (flowRateInput != null) flowRateInput.text = ehrManager.intervention.flowRate ?? "";
+
+        if (recipientInput != null) recipientInput.text = ehrManager.communication.recipient ?? "";
+        if (reasonInput != null) reasonInput.text = ehrManager.communication.reason ?? "";
+        if (outcomeInput != null) outcomeInput.text = ehrManager.communication.outcome ?? "";
+
         RefreshVitalsHistory();
     }
 
@@ -148,10 +161,30 @@ public class EHRUI : MonoBehaviour
     }
 
 
+    // SYNC CURRENT INPUT VALUES TO EHRMANAGER
+    public void SaveCurrentInputData()
+    {
+        if (ehrManager == null) return;
+
+        if (observationInput != null) ehrManager.assessment.observation = observationInput.text.Trim();
+        if (skinColorInput != null) ehrManager.assessment.skinColor = skinColorInput.text.Trim();
+        if (consciousnessInput != null) ehrManager.assessment.consciousness = consciousnessInput.text.Trim();
+
+        if (deviceInput != null) ehrManager.intervention.device = deviceInput.text.Trim();
+        if (fiO2Input != null) ehrManager.intervention.fiO2Setting = fiO2Input.text.Trim();
+        if (flowRateInput != null) ehrManager.intervention.flowRate = flowRateInput.text.Trim();
+
+        if (recipientInput != null) ehrManager.communication.recipient = recipientInput.text.Trim();
+        if (reasonInput != null) ehrManager.communication.reason = reasonInput.text.Trim();
+        if (outcomeInput != null) ehrManager.communication.outcome = outcomeInput.text.Trim();
+    }
+
+
     // TABS
 
     public void ShowAssessmentTab()
     {
+        SaveCurrentInputData();
         assessmentPanel.SetActive(true);
         interventionPanel.SetActive(false);
         communicationPanel.SetActive(false);
@@ -160,6 +193,7 @@ public class EHRUI : MonoBehaviour
 
     public void ShowInterventionTab()
     {
+        SaveCurrentInputData();
         assessmentPanel.SetActive(false);
         interventionPanel.SetActive(true);
         communicationPanel.SetActive(false);
@@ -168,6 +202,7 @@ public class EHRUI : MonoBehaviour
 
     public void ShowCommunicationTab()
     {
+        SaveCurrentInputData();
         assessmentPanel.SetActive(false);
         interventionPanel.SetActive(false);
         communicationPanel.SetActive(true);
@@ -178,7 +213,11 @@ public class EHRUI : MonoBehaviour
 
     public void OpenEHR()
     {
-        ehrPanel.SetActive(true);
+        // Activate canvas GameObject and EHRPanel UI
+        gameObject.SetActive(true);
+
+        if (ehrPanel != null)
+            ehrPanel.SetActive(true);
 
         if (playerCam != null)
             playerCam.inputEnabled = false;
@@ -199,7 +238,8 @@ public class EHRUI : MonoBehaviour
 
     public void CloseEHR()
     {
-        ehrPanel.SetActive(false);
+        if (ehrPanel != null)
+            ehrPanel.SetActive(false);
 
         if (playerCam != null)
             playerCam.inputEnabled = true;
@@ -218,100 +258,35 @@ public class EHRUI : MonoBehaviour
     {
         if (ehrManager == null)
         {
-            Debug.LogError(
-                "EHRUI: EHRManager is not assigned."
-            );
-
-            SetFeedback(
-                "EHR system is not available."
-            );
-
+            Debug.LogError("EHRUI: EHRManager is not assigned.");
+            SetFeedback("EHR system is not available.");
             return;
         }
 
         if (!ehrManager.HasPatient())
         {
-            SetFeedback(
-                "No patient is currently assigned to the bed."
-            );
-
+            SetFeedback("No patient is currently assigned to the bed.");
             return;
         }
 
-
         // SAVE CURRENT FORM VALUES
-
-        ehrManager.assessment.observation =
-            observationInput != null
-            ? observationInput.text.Trim()
-            : "";
-
-        ehrManager.assessment.skinColor =
-            skinColorInput != null
-            ? skinColorInput.text.Trim()
-            : "";
-
-        ehrManager.assessment.consciousness =
-            consciousnessInput != null
-            ? consciousnessInput.text.Trim()
-            : "";
-
-
-        ehrManager.intervention.device =
-            deviceInput != null
-            ? deviceInput.text.Trim()
-            : "";
-
-        ehrManager.intervention.fiO2Setting =
-            fiO2Input != null
-            ? fiO2Input.text.Trim()
-            : "";
-
-        ehrManager.intervention.flowRate =
-            flowRateInput != null
-            ? flowRateInput.text.Trim()
-            : "";
-
-
-        ehrManager.communication.recipient =
-            recipientInput != null
-            ? recipientInput.text.Trim()
-            : "";
-
-        ehrManager.communication.reason =
-            reasonInput != null
-            ? reasonInput.text.Trim()
-            : "";
-
-        ehrManager.communication.outcome =
-            outcomeInput != null
-            ? outcomeInput.text.Trim()
-            : "";
-
+        SaveCurrentInputData();
 
         Debug.Log("EHR documentation saved.");
         if (scenarioLogger != null)
         {
             string details =
-                "Observation=" +
-                ehrManager.assessment.observation +
-                " | FiO2=" +
-                ehrManager.intervention.fiO2Setting +
-                " | Recipient=" +
-                ehrManager.communication.recipient +
-                " | Outcome=" +
-                ehrManager.communication.outcome;
+                "Observation=" + ehrManager.assessment.observation +
+                " | FiO2=" + ehrManager.intervention.fiO2Setting +
+                " | Recipient=" + ehrManager.communication.recipient +
+                " | Outcome=" + ehrManager.communication.outcome;
 
             scenarioLogger.LogEvent(
                 "EHR_SUBMIT",
-                scenarioEngine != null
-                    ? scenarioEngine.CurrentNodeId
-                    : "",
+                scenarioEngine != null ? scenarioEngine.CurrentNodeId : "",
                 "hs_ehr",
                 details,
-                scenarioEngine != null
-                    ? scenarioEngine.CurrentScore
-                    : 0
+                scenarioEngine != null ? scenarioEngine.CurrentScore : 0
             );
         }
 
@@ -320,10 +295,7 @@ public class EHRUI : MonoBehaviour
 
         if (scenarioEngine == null)
         {
-            SetFeedback(
-                "Documentation saved."
-            );
-
+            SetFeedback("Documentation saved.");
             return;
         }
 
@@ -331,12 +303,10 @@ public class EHRUI : MonoBehaviour
         // GATE 1 VALIDATION
         // Observation + FiO2 Setting
 
-        if (scenarioEngine.CurrentNodeId ==
-            "n4_gate_documentation_1")
+        if (scenarioEngine.CurrentNodeId == "n4_gate_documentation_1")
         {
             // Observation missing
-            if (string.IsNullOrWhiteSpace(
-                ehrManager.assessment.observation))
+            if (string.IsNullOrWhiteSpace(ehrManager.assessment.observation))
             {
                 SetFeedback(
                     "Missing required field: Observation\n" +
@@ -363,8 +333,7 @@ public class EHRUI : MonoBehaviour
 
 
             // FiO2 missing
-            if (string.IsNullOrWhiteSpace(
-                ehrManager.intervention.fiO2Setting))
+            if (string.IsNullOrWhiteSpace(ehrManager.intervention.fiO2Setting))
             {
                 SetFeedback(
                     "Missing required field: FiO2 Setting\n" +
@@ -400,12 +369,10 @@ public class EHRUI : MonoBehaviour
         // GATE 2 VALIDATION
         // Recipient + Outcome
 
-        if (scenarioEngine.CurrentNodeId ==
-            "n7_gate_documentation_2")
+        if (scenarioEngine.CurrentNodeId == "n7_gate_documentation_2")
         {
             // Recipient missing
-            if (string.IsNullOrWhiteSpace(
-                ehrManager.communication.recipient))
+            if (string.IsNullOrWhiteSpace(ehrManager.communication.recipient))
             {
                 SetFeedback(
                     "Missing required field: Recipient\n" +
@@ -432,8 +399,7 @@ public class EHRUI : MonoBehaviour
 
 
             // Outcome missing
-            if (string.IsNullOrWhiteSpace(
-                ehrManager.communication.outcome))
+            if (string.IsNullOrWhiteSpace(ehrManager.communication.outcome))
             {
                 SetFeedback(
                     "Missing required field: Outcome\n" +
@@ -487,20 +453,16 @@ public class EHRUI : MonoBehaviour
 
         SetFeedback(gateFeedback);
 
-        Debug.Log(
-            "EHR Gate result: " +
-            gatePassed
-        );
+        Debug.Log("EHR Gate result: " + gatePassed);
     }
 
     private IEnumerator ScrollToField(
-    ScrollRect scrollRect,
-    RectTransform targetField)
+        ScrollRect scrollRect,
+        RectTransform targetField)
     {
         if (scrollRect == null || targetField == null)
             yield break;
 
-       
         yield return null;
 
         Canvas.ForceUpdateCanvases();
@@ -511,7 +473,6 @@ public class EHRUI : MonoBehaviour
         if (content == null || viewport == null)
             yield break;
 
-       
         Vector3 targetWorldPosition = targetField.TransformPoint(
             targetField.rect.center
         );
@@ -519,7 +480,6 @@ public class EHRUI : MonoBehaviour
         Vector3 targetLocalPosition =
             content.InverseTransformPoint(targetWorldPosition);
 
-        
         Vector3 viewportWorldPosition = viewport.TransformPoint(
             viewport.rect.center
         );
@@ -541,6 +501,7 @@ public class EHRUI : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
     }
+
     // FEEDBACK HELPER
 
     private void SetFeedback(string message)

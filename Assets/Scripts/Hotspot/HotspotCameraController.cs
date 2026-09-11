@@ -51,6 +51,13 @@ public class HotspotCameraController : MonoBehaviour
 
         TogglePlayerControls(false);
 
+        // Auto-detect if this hotspot has an EHR interface attached and open it
+        EHRHotspot ehrHotspot = focusTarget.GetComponentInParent<EHRHotspot>();
+        if (ehrHotspot != null)
+        {
+            ehrHotspot.OpenEHR();
+        }
+
         if (activeRoutine != null) StopCoroutine(activeRoutine);
         activeRoutine = StartCoroutine(MoveCameraToTarget(focusTarget.position, focusTarget.rotation));
     }
@@ -58,6 +65,13 @@ public class HotspotCameraController : MonoBehaviour
     public void ExitFocus()
     {
         if (!isFocused) return;
+
+        // Auto-close EHR UI when backing out of camera focus
+        EHRUI ehrUI = FindObjectOfType<EHRUI>();
+        if (ehrUI != null)
+        {
+            ehrUI.CloseEHR();
+        }
 
         if (activeRoutine != null) StopCoroutine(activeRoutine);
         activeRoutine = StartCoroutine(ReturnCameraToPlayer());
