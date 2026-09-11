@@ -9,14 +9,17 @@ public class DoctorController : MonoBehaviour
     public float treatmentTime = 2f;  // Πόσο χρόνο θα κάτσει στον ασθενή
 
     private Vector3 startPosition;
+    private Quaternion startRotation; // Αποθήκευση αρχικής περιστροφής
     private bool isMoving = false;
 
     private Animator animator;
 
     private void Start()
     {
-        // Αποθηκεύουμε την αρχική θέση του γιατρού για να ξέρει πού να γυρίσει
+        // Αποθηκεύουμε την αρχική θέση και περιστροφή του γιατρού
         startPosition = transform.position;
+        startRotation = transform.rotation;
+        
         animator = GetComponent<Animator>();
     }
 
@@ -51,11 +54,11 @@ public class DoctorController : MonoBehaviour
         animator.SetBool("IsWalking", true);
         yield return StartCoroutine(MoveToPosition(startPosition));
 
-        // Έφτασε στη βάση του, σταματάει
+        // Έφτασε στη βάση του, σταματάει το περπάτημα
         animator.SetBool("IsWalking", false);
         
-        // Τον βάζουμε να κοιτάξει στην αρχική του κατεύθυνση
-        transform.rotation = Quaternion.identity; 
+        // Ομαλή περιστροφή στην αρχική κατεύθυνση (smooth rotate back)
+        yield return StartCoroutine(RotateToQuaternion(startRotation));
         
         isMoving = false;
         Debug.Log("Ο γιατρός επέστρεψε στη θέση του.");
@@ -82,5 +85,18 @@ public class DoctorController : MonoBehaviour
         }
         
         transform.position = targetPosition; 
+    }
+
+    // Νέα μέθοδος για ομαλή περιστροφή στον στόχο
+    private IEnumerator RotateToQuaternion(Quaternion targetRotation)
+    {
+        float turnSpeed = 8f;
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 0.5f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+            yield return null;
+        }
+        
+        transform.rotation = targetRotation; // Ensure exact final alignment
     }
 }
