@@ -16,14 +16,12 @@ public class DoctorController : MonoBehaviour
 
     private void Start()
     {
-        // Αποθηκεύουμε την αρχική θέση και περιστροφή του γιατρού
         startPosition = transform.position;
         startRotation = transform.rotation;
         
         animator = GetComponent<Animator>();
     }
 
-    // Καλείται από το κουμπί
     public void GoTreatPatient()
     {
         if (!isMoving) 
@@ -36,28 +34,21 @@ public class DoctorController : MonoBehaviour
     {
         isMoving = true;
 
-        // Ξεκινάει το περπάτημα προς τον ασθενή
         animator.SetBool("IsWalking", true);
         yield return StartCoroutine(MoveToPosition(patientLocation.position));
 
-        // Έφτασε στον ασθενή: Σταματάει να περπατάει
         animator.SetBool("IsWalking", false);
         
-        // Ξεκινάει το animation θεραπείας
         animator.SetTrigger("Treat");
         Debug.Log("Ο γιατρός εξετάζει τον ασθενή...");
         
-        // Περιμένει όσο διαρκεί η εξέταση
         yield return new WaitForSeconds(treatmentTime);
 
-        // Ξεκινάει η επιστροφή
         animator.SetBool("IsWalking", true);
         yield return StartCoroutine(MoveToPosition(startPosition));
 
-        // Έφτασε στη βάση του, σταματάει το περπάτημα
         animator.SetBool("IsWalking", false);
         
-        // Ομαλή περιστροφή στην αρχική κατεύθυνση (smooth rotate back)
         yield return StartCoroutine(RotateToQuaternion(startRotation));
         
         isMoving = false;
@@ -70,10 +61,8 @@ public class DoctorController : MonoBehaviour
 
         while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
         {
-            // Κίνηση
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
             
-            // Ομαλή Περιστροφή προς την κατεύθυνση που πάει
             Vector3 direction = (targetPosition - transform.position).normalized;
             if (direction != Vector3.zero)
             {
@@ -87,7 +76,6 @@ public class DoctorController : MonoBehaviour
         transform.position = targetPosition; 
     }
 
-    // Νέα μέθοδος για ομαλή περιστροφή στον στόχο
     private IEnumerator RotateToQuaternion(Quaternion targetRotation)
     {
         float turnSpeed = 8f;
