@@ -14,6 +14,9 @@ public class ScenarioEngine : MonoBehaviour
     [Header("Scenario Data")]
     public TextAsset jsonScenarioFile; 
     [Header("Logging")]
+
+    [Header("Debrief")]
+    public DebriefManager debriefManager;
     public ScenarioLogger scenarioLogger;
     private ScenarioData currentScenario;
     private Dictionary<string, ScenarioNode> nodeDictionary;
@@ -155,6 +158,12 @@ public class ScenarioEngine : MonoBehaviour
             if (scenarioLogger != null)
             {
                 scenarioLogger.ExportJSON();
+            }
+
+            if (debriefManager != null)
+            {
+                debriefManager.PrintDebriefToConsole();
+                debriefManager.ShowDebrief();
             }
 
             break;
@@ -313,24 +322,54 @@ public class ScenarioEngine : MonoBehaviour
 
     private void InitVitals(Dictionary<string, object> initialVitals)
     {
-        if (initialVitals == null || patientVitals == null) return;
-
-        if (initialVitals.TryGetValue("hr", out object hrObj))
-            patientVitals.SetHeartRate(System.Convert.ToSingle(hrObj));
-            
-        if (initialVitals.TryGetValue("spo2", out object spo2Obj))
-            patientVitals.SetOxygenSaturation(System.Convert.ToSingle(spo2Obj));
-
-        if (initialVitals.TryGetValue("rr", out object rrObj))
-            patientVitals.SetRespiratoryRate(System.Convert.ToSingle(rrObj));
-
-        if (initialVitals.TryGetValue("temp", out object tempObj))
-            patientVitals.SetTemperature(System.Convert.ToSingle(tempObj));
-
-        if (initialVitals.TryGetValue("bp", out object bpObj))
+        if (initialVitals == null || patientVitals == null)
         {
-            patientVitals.SetBloodPressure(bpObj.ToString());
+            return;
         }
+
+        float hr = patientVitals.HeartRate;
+
+        float spo2 = patientVitals.OxygenSaturation;
+
+        float rr = patientVitals.RespiratoryRate;
+
+        float temp = patientVitals.Temperature;
+
+        string bp = patientVitals.BloodPressure;
+
+
+        if (initialVitals.TryGetValue("hr",out object hrObj)){
+            hr = System.Convert.ToSingle(hrObj);
+        }
+
+        if (initialVitals.TryGetValue("spo2",out object spo2Obj)){
+            spo2 =
+                System.Convert.ToSingle(spo2Obj);
+        }
+
+        if (initialVitals.TryGetValue("rr",out object rrObj)){
+            rr =System.Convert.ToSingle(rrObj);
+        }
+
+        if (initialVitals.TryGetValue(
+            "temp",out object tempObj))
+        {
+            temp = System.Convert.ToSingle(tempObj);
+        }
+
+        if (initialVitals.TryGetValue("bp",out object bpObj))
+        {
+            bp = bpObj.ToString();
+        }
+
+
+        patientVitals.SetVitals(
+            hr,
+            spo2,
+            bp,
+            rr,
+            temp
+        );
     }
 
     private IEnumerator HandleTimeout(TimeoutData timeoutData)

@@ -62,7 +62,6 @@ public class EHRManager : MonoBehaviour
 
         currentPatient.OnVitalsChanged += RecordCurrentVitals;
 
-        RecordCurrentVitals();
     }
 
     private void UnsubscribeFromPatient()
@@ -97,7 +96,9 @@ public class EHRManager : MonoBehaviour
                 Mathf.Approximately(lastEntry.heartRate, currentPatient.HeartRate) &&
                 Mathf.Approximately(lastEntry.oxygenSaturation, currentPatient.OxygenSaturation) &&
                 Mathf.Approximately(lastEntry.systolicPressure, currentPatient.SystolicPressure) &&
-                Mathf.Approximately(lastEntry.diastolicPressure, currentPatient.DiastolicPressure);
+                Mathf.Approximately(lastEntry.diastolicPressure, currentPatient.DiastolicPressure) &&
+                Mathf.Approximately(lastEntry.respiratoryRate, currentPatient.RespiratoryRate) &&
+                Mathf.Approximately(lastEntry.temperature, currentPatient.Temperature);
 
             if (sameVitals)
             {
@@ -111,7 +112,9 @@ public class EHRManager : MonoBehaviour
                 currentPatient.HeartRate,
                 currentPatient.OxygenSaturation,
                 currentPatient.SystolicPressure,
-                currentPatient.DiastolicPressure
+                currentPatient.DiastolicPressure,
+                currentPatient.RespiratoryRate,
+                currentPatient.Temperature
             );
 
         vitalsHistory.Add(entry);
@@ -125,7 +128,12 @@ public class EHRManager : MonoBehaviour
                 ", SpO2=" +
                 entry.oxygenSaturation.ToString("0") +
                 "%, HR=" +
-                entry.heartRate.ToString("0");
+                entry.heartRate.ToString("0") +
+                ", RR=" +
+                entry.respiratoryRate.ToString("0") +
+
+                ", Temp=" +
+                entry.temperature.ToString("0.0");
 
             scenarioLogger.LogEvent(
                 "VITALS_CHANGE",

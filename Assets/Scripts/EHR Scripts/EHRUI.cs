@@ -8,7 +8,7 @@ public class EHRUI : MonoBehaviour
 {
     [Header("Scenario")]
     public ScenarioEngine scenarioEngine;
-
+    
     [Header("Tabs")]
     public GameObject assessmentPanel;
     public GameObject interventionPanel;
@@ -22,7 +22,9 @@ public class EHRUI : MonoBehaviour
     [Header("Player")]
     public PlayerMovement playerMovement;
     public PlayerCam playerCam;
-
+    [Header("Camera Focus")]
+    public HotspotCameraController cameraController;
+    
     [Header("References")]
     public EHRManager ehrManager;
     public GameObject ehrPanel;
@@ -144,22 +146,34 @@ public class EHRUI : MonoBehaviour
         {
             builder.AppendLine(
                 entry.dateTime.PadRight(21) +
+
                 (
                     entry.systolicPressure.ToString("0") +
                     "/" +
                     entry.diastolicPressure.ToString("0")
                 ).PadRight(10) +
+
                 (
                     entry.oxygenSaturation.ToString("0") +
                     "%"
                 ).PadRight(9) +
-                entry.heartRate.ToString("0")
+
+                entry.heartRate
+                    .ToString("0")
+                    .PadRight(8) +
+
+                entry.respiratoryRate
+                    .ToString("0")
+                    .PadRight(8) +
+
+                entry.temperature
+                    .ToString("0.0")
             );
         }
 
-        vitalsHistoryText.text = builder.ToString();
+        vitalsHistoryText.text =
+            builder.ToString();
     }
-
 
     // SYNC CURRENT INPUT VALUES TO EHRMANAGER
     public void SaveCurrentInputData()
@@ -236,20 +250,7 @@ public class EHRUI : MonoBehaviour
     }
 
 
-    public void CloseEHR()
-    {
-        if (ehrPanel != null)
-            ehrPanel.SetActive(false);
 
-        if (playerCam != null)
-            playerCam.inputEnabled = true;
-
-        if (playerMovement != null)
-            playerMovement.inputEnabled = true;
-
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
 
 
     // SAVE DOCUMENTATION
@@ -510,5 +511,26 @@ public class EHRUI : MonoBehaviour
         {
             feedbackText.text = message;
         }
+    }
+
+
+    public void CloseEHR()
+    {
+        ehrPanel.SetActive(false);
+
+        if (cameraController != null &&
+            cameraController.IsFocused)
+        {
+            cameraController.ExitFocus();
+        }
+
+        if (playerCam != null)
+            playerCam.inputEnabled = true;
+
+        if (playerMovement != null)
+            playerMovement.inputEnabled = true;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }

@@ -37,8 +37,8 @@ public class EHRHotspot : MonoBehaviour
         }
     }
 
-    private void OnMouseDown()
+   /* private void OnMouseDown()
     {
         OpenEHR();
-    }
+    }*/
 }

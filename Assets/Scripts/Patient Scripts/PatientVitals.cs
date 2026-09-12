@@ -74,19 +74,56 @@ public class PatientVitals : MonoBehaviour
         VitalsChanged();
     }
 
-    public void SetVitals(
-        float newHeartRate,
-        float newOxygen,
-        string newBloodPressure,
-        float newRespiratoryRate,
-        float newTemperature)
+    public void SetVitals(float newHeartRate,float newOxygen,string newBloodPressure,float newRespiratoryRate,float newTemperature)
     {
-        heartRate = Mathf.Clamp(newHeartRate, 0f, 250f);
-        oxygenSaturation = Mathf.Clamp(newOxygen, 0f, 100f);
-        SetBloodPressure(newBloodPressure); // Χρησιμοποιεί τη μέθοδο παραπάνω
-        respiratoryRate = Mathf.Clamp(newRespiratoryRate, 0f, 60f);
-        temperature = Mathf.Clamp(newTemperature, 30f, 45f);
+        heartRate = Mathf.Clamp(
+            newHeartRate,
+            0f,
+            250f
+        );
 
+        oxygenSaturation = Mathf.Clamp(
+            newOxygen,
+            0f,
+            100f
+        );
+
+        respiratoryRate = Mathf.Clamp(
+            newRespiratoryRate,
+            0f,
+            60f
+        );
+
+        temperature = Mathf.Clamp(
+            newTemperature,
+            30f,
+            45f
+        );
+
+        bloodPressure = newBloodPressure;
+
+        if (!string.IsNullOrEmpty(newBloodPressure) &&
+            newBloodPressure.Contains("/"))
+        {
+            string[] parts =
+                newBloodPressure.Split('/');
+
+            if (parts.Length == 2 &&
+                float.TryParse(
+                    parts[0],
+                    out float sys
+                ) &&
+                float.TryParse(
+                    parts[1],
+                    out float dia
+                ))
+            {
+                SystolicPressure = sys;
+                DiastolicPressure = dia;
+            }
+        }
+
+        // Μία μόνο ειδοποίηση αφού έχουν φορτωθεί ΟΛΑ.
         VitalsChanged();
     }
 
