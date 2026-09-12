@@ -215,22 +215,112 @@ public class Interactor : MonoBehaviour
         }
     }
 
-    private void TryInteractOrFocus()
+   private void TryInteractOrFocus()
     {
-        if (currentHoveredHotspot == null) return;
+        if (currentHoveredHotspot == null)
+            return;
 
-        HotspotObject hotspotInfo = currentHoveredHotspot.GetComponentInParent<HotspotObject>();
-        if (hotspotInfo == null) hotspotInfo = currentHoveredHotspot.GetComponent<HotspotObject>();
 
-        bool isPatient = hotspotInfo != null && hotspotInfo.hotspotId.ToLower().Contains("patient");
+        
+        // HOTSPOT INFO
+        
 
-        HotspotFocusPoint focusPoint = currentHoveredHotspot.GetComponentInParent<HotspotFocusPoint>();
-        if (focusPoint == null) focusPoint = currentHoveredHotspot.GetComponent<HotspotFocusPoint>();
+        HotspotObject hotspotInfo =
+            currentHoveredHotspot
+                .GetComponentInParent<HotspotObject>();
 
-        if (!isPatient && focusPoint != null && focusPoint.cameraFocusTarget != null && cameraController != null)
+        if (hotspotInfo == null)
         {
-            activeFocusedPoint = focusPoint;
-            cameraController.FocusOnTarget(focusPoint.cameraFocusTarget);
+            hotspotInfo =
+                currentHoveredHotspot
+                    .GetComponent<HotspotObject>();
+        }
+
+
+        
+        // EHR
+        // ONLY THE E KEY REACHES THIS METHOD
+        
+
+        EHRHotspot ehrHotspot =
+            currentHoveredHotspot
+                .GetComponentInParent<EHRHotspot>();
+
+        if (ehrHotspot == null)
+        {
+            ehrHotspot =
+                currentHoveredHotspot
+                    .GetComponent<EHRHotspot>();
+        }
+
+        if (ehrHotspot != null)
+        {
+            // Log the E interaction
+            if (hotspotInfo != null &&
+                scenarioLogger != null)
+            {
+                scenarioLogger.LogEvent(
+                    "HOTSPOT_INTERACTION",
+
+                    scenarioEngine != null
+                        ? scenarioEngine.CurrentNodeId
+                        : "",
+
+                    hotspotInfo.hotspotId,
+
+                    "Player interacted with hotspot " +
+                    hotspotInfo.hotspotId,
+
+                    scenarioEngine != null
+                        ? scenarioEngine.CurrentScore
+                        : 0
+                );
+            }
+
+            Debug.Log(
+                "Interactor: Opening EHR with E key"
+            );
+
+            ehrHotspot.OpenEHR();
+
+            return;
+        }
+
+
+        
+        // OTHER HOTSPOTS
+        
+
+        bool isPatient =
+            hotspotInfo != null &&
+            hotspotInfo.hotspotId
+                .ToLower()
+                .Contains("patient");
+
+
+        HotspotFocusPoint focusPoint =
+            currentHoveredHotspot
+                .GetComponentInParent<HotspotFocusPoint>();
+
+        if (focusPoint == null)
+        {
+            focusPoint =
+                currentHoveredHotspot
+                    .GetComponent<HotspotFocusPoint>();
+        }
+
+
+        if (!isPatient &&
+            focusPoint != null &&
+            focusPoint.cameraFocusTarget != null &&
+            cameraController != null)
+        {
+            activeFocusedPoint =
+                focusPoint;
+
+            cameraController.FocusOnTarget(
+                focusPoint.cameraFocusTarget
+            );
         }
         else
         {
@@ -307,7 +397,7 @@ public class Interactor : MonoBehaviour
             button.PressButton();
         }
 
-        // EHR
+        /* EHR
 
         EHRHotspot ehrHotspot =
             currentHoveredHotspot
@@ -336,7 +426,7 @@ public class Interactor : MonoBehaviour
             }
 
             return;
-        }
+        }*/
 
         // SEND HOTSPOT TO SCENARIO
 

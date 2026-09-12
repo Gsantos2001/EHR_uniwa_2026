@@ -51,12 +51,12 @@ public class HotspotCameraController : MonoBehaviour
 
         TogglePlayerControls(false);
 
-        // Auto-detect if this hotspot has an EHR interface attached and open it
+        /* Auto-detect if this hotspot has an EHR interface attached and open it
         EHRHotspot ehrHotspot = focusTarget.GetComponentInParent<EHRHotspot>();
         if (ehrHotspot != null)
         {
             ehrHotspot.OpenEHR();
-        }
+        }*/
 
         if (activeRoutine != null) StopCoroutine(activeRoutine);
         activeRoutine = StartCoroutine(MoveCameraToTarget(focusTarget.position, focusTarget.rotation));

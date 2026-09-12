@@ -14,6 +14,9 @@ public class ScenarioEngine : MonoBehaviour
     [Header("Scenario Data")]
     public TextAsset jsonScenarioFile; 
     [Header("Logging")]
+
+    [Header("Debrief")]
+    public DebriefManager debriefManager;
     public ScenarioLogger scenarioLogger;
     private ScenarioData currentScenario;
     private Dictionary<string, ScenarioNode> nodeDictionary;
@@ -155,6 +158,12 @@ public class ScenarioEngine : MonoBehaviour
             if (scenarioLogger != null)
             {
                 scenarioLogger.ExportJSON();
+            }
+
+            if (debriefManager != null)
+            {
+                debriefManager.PrintDebriefToConsole();
+                debriefManager.ShowDebrief();
             }
 
             break;
