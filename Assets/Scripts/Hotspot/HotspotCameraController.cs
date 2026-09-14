@@ -4,6 +4,12 @@ using UnityEngine.InputSystem;
 
 public class HotspotCameraController : MonoBehaviour
 {
+
+
+    [Header("Online Help")]
+    public OnlineHelp onlineHelp;
+
+
     [Header("Scripts to Disable on Focus")]
     public PlayerMovement playerMovement; 
     public PlayerCam playerCam;           
@@ -37,11 +43,12 @@ public class HotspotCameraController : MonoBehaviour
 
     private void Update()
     {
-        if (isFocused && (Keyboard.current.escapeKey.wasPressedThisFrame || 
-                          Mouse.current.rightButton.wasPressedThisFrame))
-        {
-            ExitFocus();
-        }
+        if (isFocused &&
+        (Keyboard.current.escapeKey.wasPressedThisFrame ||
+         Mouse.current.rightButton.wasPressedThisFrame))
+    {
+        ExitFocus();
+    }
     }
 
     public void FocusOnTarget(Transform focusTarget)
@@ -62,21 +69,31 @@ public class HotspotCameraController : MonoBehaviour
         activeRoutine = StartCoroutine(MoveCameraToTarget(focusTarget.position, focusTarget.rotation));
     }
 
-    public void ExitFocus()
+    
+   
+public void ExitFocus()
+{
+    if (!isFocused) return;
+
+    // Κλείσε αμέσως το hotspot online help
+    if (onlineHelp != null)
     {
-        if (!isFocused) return;
-
-        // Auto-close EHR UI when backing out of camera focus
-        EHRUI ehrUI = FindObjectOfType<EHRUI>();
-        if (ehrUI != null)
-        {
-            ehrUI.CloseEHR();
-        }
-
-        if (activeRoutine != null) StopCoroutine(activeRoutine);
-        activeRoutine = StartCoroutine(ReturnCameraToPlayer());
+        onlineHelp.CloseHotspotHelp();
+        onlineHelp.ClearCurrentHotspot();
     }
 
+    // Auto-close EHR UI
+    EHRUI ehrUI = FindObjectOfType<EHRUI>();
+    if (ehrUI != null)
+    {
+        ehrUI.CloseEHR();
+    }
+
+    if (activeRoutine != null)
+        StopCoroutine(activeRoutine);
+
+    activeRoutine = StartCoroutine(ReturnCameraToPlayer());
+}
     private IEnumerator MoveCameraToTarget(Vector3 targetPos, Quaternion targetRot)
     {
         transform.SetParent(null);
@@ -110,6 +127,8 @@ public class HotspotCameraController : MonoBehaviour
 
         TogglePlayerControls(true);
         isFocused = false;
+
+      
     }
 
     private void SyncPlayerCamRotation()
@@ -150,4 +169,6 @@ public class HotspotCameraController : MonoBehaviour
             Cursor.visible = true;
         }
     }
+
+    
 }
