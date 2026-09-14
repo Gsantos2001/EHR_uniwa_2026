@@ -29,9 +29,6 @@ public class Interactor : MonoBehaviour
     [Header("Logging")]
     public ScenarioLogger scenarioLogger;
 
-    [Header("Online Help")]
-    [SerializeField] private OnlineHelp onlineHelp;
-
     private void Start()
     {
         mainCamera = Camera.main;
@@ -258,25 +255,6 @@ public class Interactor : MonoBehaviour
 
         if (ehrHotspot != null)
         {
-
-           HotspotOnlineHelp hotspotHelp =
-    currentHoveredHotspot.GetComponentInParent<HotspotOnlineHelp>();
-
-if (hotspotHelp == null)
-{
-    hotspotHelp =
-        currentHoveredHotspot.GetComponent<HotspotOnlineHelp>();
-}
-
-if (onlineHelp != null)
-{
-    if (hotspotHelp != null)
-        onlineHelp.SetCurrentHotspot(hotspotHelp);
-    else
-        onlineHelp.ClearCurrentHotspot();
-}
-
-
             // Log the E interaction
             if (hotspotInfo != null &&
                 scenarioLogger != null)
@@ -333,38 +311,17 @@ if (onlineHelp != null)
 
 
         if (!isPatient &&
-    focusPoint != null &&
-    focusPoint.cameraFocusTarget != null &&
-    cameraController != null)
-{
-    activeFocusedPoint = focusPoint;
+            focusPoint != null &&
+            focusPoint.cameraFocusTarget != null &&
+            cameraController != null)
+        {
+            activeFocusedPoint =
+                focusPoint;
 
-    // ==========================================
-    // SET HOTSPOT-SPECIFIC ONLINE HELP
-    // ==========================================
-
-    HotspotOnlineHelp hotspotHelp =
-        currentHoveredHotspot.GetComponentInParent<HotspotOnlineHelp>();
-
-    if (hotspotHelp == null)
-    {
-        hotspotHelp =
-            currentHoveredHotspot.GetComponent<HotspotOnlineHelp>();
-    }
-
-    if (hotspotHelp != null && onlineHelp != null)
-    {
-        onlineHelp.SetCurrentHotspot(hotspotHelp);
-    }
-    else if (onlineHelp != null)
-    {
-        onlineHelp.ClearCurrentHotspot();
-    }
-
-    cameraController.FocusOnTarget(
-        focusPoint.cameraFocusTarget
-    );
-}
+            cameraController.FocusOnTarget(
+                focusPoint.cameraFocusTarget
+            );
+        }
         else
         {
             TriggerHotspotAction();
