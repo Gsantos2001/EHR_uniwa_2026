@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,9 +5,9 @@ using UnityEngine.InputSystem;
 public class HotspotCameraController : MonoBehaviour
 {
     [Header("Scripts to Disable on Focus")]
-    public PlayerMovement playerMovement;
-    public PlayerCam playerCam;
-    public Interactor interactor;
+    public PlayerMovement playerMovement; 
+    public PlayerCam playerCam;           
+    public Interactor interactor;         
 
     [Header("UI & Visual Elements to Hide on Focus")]
     public GameObject handCamera;
@@ -16,9 +15,6 @@ public class HotspotCameraController : MonoBehaviour
 
     [Header("Transition Settings")]
     public float transitionSpeed = 8f;
-
-    [Header("Online Help")]
-    public OnlineHelpUI onlineHelpUI;
 
     private Transform originalParent;
     private Vector3 originalLocalPos;
@@ -35,23 +31,14 @@ public class HotspotCameraController : MonoBehaviour
         originalLocalPos = transform.localPosition;
         originalLocalRot = transform.localRotation;
 
-        if (playerCam == null)
-            playerCam = GetComponent<PlayerCam>();
-
-        if (interactor == null)
-            interactor = GetComponent<Interactor>();
-
-        if (onlineHelpUI == null)
-            onlineHelpUI = FindObjectOfType<OnlineHelpUI>();
+        if (playerCam == null) playerCam = GetComponent<PlayerCam>();
+        if (interactor == null) interactor = GetComponent<Interactor>();
     }
 
     private void Update()
     {
-        if (isFocused &&
-            ((Keyboard.current != null &&
-              Keyboard.current.escapeKey.wasPressedThisFrame) ||
-             (Mouse.current != null &&
-              Mouse.current.rightButton.wasPressedThisFrame)))
+        if (isFocused && (Keyboard.current.escapeKey.wasPressedThisFrame || 
+                          Mouse.current.rightButton.wasPressedThisFrame))
         {
             ExitFocus();
         }
@@ -59,73 +46,45 @@ public class HotspotCameraController : MonoBehaviour
 
     public void FocusOnTarget(Transform focusTarget)
     {
-        if (isFocused || focusTarget == null)
-            return;
-
+        if (isFocused || focusTarget == null) return;
         isFocused = true;
 
         TogglePlayerControls(false);
 
-        if (activeRoutine != null)
-            StopCoroutine(activeRoutine);
+        /* Auto-detect if this hotspot has an EHR interface attached and open it
+        EHRHotspot ehrHotspot = focusTarget.GetComponentInParent<EHRHotspot>();
+        if (ehrHotspot != null)
+        {
+            ehrHotspot.OpenEHR();
+        }*/
 
-        activeRoutine = StartCoroutine(
-            MoveCameraToTarget(
-                focusTarget.position,
-                focusTarget.rotation
-            )
-        );
+        if (activeRoutine != null) StopCoroutine(activeRoutine);
+        activeRoutine = StartCoroutine(MoveCameraToTarget(focusTarget.position, focusTarget.rotation));
     }
 
     public void ExitFocus()
     {
-        if (!isFocused)
-            return;
+        if (!isFocused) return;
 
         // Auto-close EHR UI when backing out of camera focus
         EHRUI ehrUI = FindObjectOfType<EHRUI>();
-
         if (ehrUI != null)
         {
             ehrUI.CloseEHR();
         }
 
-        // Κλείσε το Online Help κατά την έξοδο από το focus.
-        if (onlineHelpUI != null &&
-            onlineHelpUI.IsHelpVisible)
-        {
-            onlineHelpUI.HideHelp();
-        }
-
-        if (activeRoutine != null)
-            StopCoroutine(activeRoutine);
-
-        activeRoutine = StartCoroutine(
-            ReturnCameraToPlayer()
-        );
+        if (activeRoutine != null) StopCoroutine(activeRoutine);
+        activeRoutine = StartCoroutine(ReturnCameraToPlayer());
     }
 
-    private IEnumerator MoveCameraToTarget(
-        Vector3 targetPos,
-        Quaternion targetRot)
+    private IEnumerator MoveCameraToTarget(Vector3 targetPos, Quaternion targetRot)
     {
         transform.SetParent(null);
 
-        while (Vector3.Distance(transform.position, targetPos) > 0.001f ||
-               Quaternion.Angle(transform.rotation, targetRot) > 0.05f)
+        while (Vector3.Distance(transform.position, targetPos) > 0.001f || Quaternion.Angle(transform.rotation, targetRot) > 0.05f)
         {
-            transform.position = Vector3.Lerp(
-                transform.position,
-                targetPos,
-                Time.deltaTime * transitionSpeed
-            );
-
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRot,
-                Time.deltaTime * transitionSpeed
-            );
-
+            transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * transitionSpeed);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * transitionSpeed);
             yield return null;
         }
 
@@ -137,21 +96,10 @@ public class HotspotCameraController : MonoBehaviour
     {
         transform.SetParent(originalParent);
 
-        while (Vector3.Distance(transform.localPosition, originalLocalPos) > 0.001f ||
-               Quaternion.Angle(transform.localRotation, originalLocalRot) > 0.1f)
+        while (Vector3.Distance(transform.localPosition, originalLocalPos) > 0.001f || Quaternion.Angle(transform.localRotation, originalLocalRot) > 0.1f)
         {
-            transform.localPosition = Vector3.Lerp(
-                transform.localPosition,
-                originalLocalPos,
-                Time.deltaTime * transitionSpeed
-            );
-
-            transform.localRotation = Quaternion.Slerp(
-                transform.localRotation,
-                originalLocalRot,
-                Time.deltaTime * transitionSpeed
-            );
-
+            transform.localPosition = Vector3.Lerp(transform.localPosition, originalLocalPos, Time.deltaTime * transitionSpeed);
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, originalLocalRot, Time.deltaTime * transitionSpeed);
             yield return null;
         }
 
@@ -161,65 +109,35 @@ public class HotspotCameraController : MonoBehaviour
         SyncPlayerCamRotation();
 
         TogglePlayerControls(true);
-
         isFocused = false;
-
-        // Καθαρισμός του hotspot μετά την έξοδο.
-        if (interactor != null)
-        {
-            interactor.ClearInteractedHotspot();
-        }
     }
 
     private void SyncPlayerCamRotation()
     {
-        if (playerCam == null)
-            return;
+        if (playerCam == null) return;
 
         Vector3 euler = transform.eulerAngles;
-
+        
         float xRot = euler.x;
-
-        if (xRot > 180f)
-            xRot -= 360f;
+        if (xRot > 180f) xRot -= 360f;
 
         float yRot = euler.y;
 
-        var fieldX = typeof(PlayerCam).GetField(
-            "xRotation",
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance
-        );
+        var fieldX = typeof(PlayerCam).GetField("xRotation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var fieldY = typeof(PlayerCam).GetField("yRotation", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        var fieldY = typeof(PlayerCam).GetField(
-            "yRotation",
-            System.Reflection.BindingFlags.NonPublic |
-            System.Reflection.BindingFlags.Instance
-        );
-
-        if (fieldX != null)
-            fieldX.SetValue(playerCam, xRot);
-
-        if (fieldY != null)
-            fieldY.SetValue(playerCam, yRot);
+        if (fieldX != null) fieldX.SetValue(playerCam, xRot);
+        if (fieldY != null) fieldY.SetValue(playerCam, yRot);
     }
 
     private void TogglePlayerControls(bool enable)
     {
-        if (playerMovement != null)
-            playerMovement.enabled = enable;
+        if (playerMovement != null) playerMovement.enabled = enable;
+        if (playerCam != null) playerCam.enabled = enable;
+        if (interactor != null) interactor.enabled = true;
 
-        if (playerCam != null)
-            playerCam.enabled = enable;
-
-        if (interactor != null)
-            interactor.enabled = true;
-
-        if (handCamera != null)
-            handCamera.SetActive(enable);
-
-        if (crosshairUI != null)
-            crosshairUI.SetActive(enable);
+        if (handCamera != null) handCamera.SetActive(enable);
+        if (crosshairUI != null) crosshairUI.SetActive(enable);
 
         if (enable)
         {
