@@ -118,7 +118,6 @@ public class EHRUI : MonoBehaviour
                 ehrManager.patientInfo.admissionDiagnosis;
         }
 
-        // LOAD SAVED DATA INTO INPUT FIELDS
         if (observationInput != null) observationInput.text = ehrManager.assessment.observation ?? "";
         if (skinColorInput != null) skinColorInput.text = ehrManager.assessment.skinColor ?? "";
         if (consciousnessInput != null) consciousnessInput.text = ehrManager.assessment.consciousness ?? "";
@@ -175,7 +174,6 @@ public class EHRUI : MonoBehaviour
             builder.ToString();
     }
 
-    // SYNC CURRENT INPUT VALUES TO EHRMANAGER
     public void SaveCurrentInputData()
     {
         if (ehrManager == null) return;
@@ -227,7 +225,6 @@ public class EHRUI : MonoBehaviour
 
     public void OpenEHR()
     {
-        // Activate canvas GameObject and EHRPanel UI
         gameObject.SetActive(true);
 
         if (ehrPanel != null)
@@ -269,8 +266,7 @@ public class EHRUI : MonoBehaviour
             SetFeedback("No patient is currently assigned to the bed.");
             return;
         }
-
-        // SAVE CURRENT FORM VALUES
+		
         SaveCurrentInputData();
 
         Debug.Log("EHR documentation saved.");
@@ -306,7 +302,6 @@ public class EHRUI : MonoBehaviour
 
         if (scenarioEngine.CurrentNodeId == "n4_gate_documentation_1")
         {
-            // Observation missing
             if (string.IsNullOrWhiteSpace(ehrManager.assessment.observation))
             {
                 SetFeedback(
@@ -332,8 +327,6 @@ public class EHRUI : MonoBehaviour
                 return;
             }
 
-
-            // FiO2 missing
             if (string.IsNullOrWhiteSpace(ehrManager.intervention.fiO2Setting))
             {
                 SetFeedback(
@@ -359,8 +352,6 @@ public class EHRUI : MonoBehaviour
                 return;
             }
 
-
-            // Both fields exist -> try to pass Gate 1
             TryCompleteScenarioGate();
 
             return;
@@ -368,11 +359,9 @@ public class EHRUI : MonoBehaviour
 
 
         // GATE 2 VALIDATION
-        // Recipient + Outcome
 
         if (scenarioEngine.CurrentNodeId == "n7_gate_documentation_2")
         {
-            // Recipient missing
             if (string.IsNullOrWhiteSpace(ehrManager.communication.recipient))
             {
                 SetFeedback(
@@ -398,8 +387,6 @@ public class EHRUI : MonoBehaviour
                 return;
             }
 
-
-            // Outcome missing
             if (string.IsNullOrWhiteSpace(ehrManager.communication.outcome))
             {
                 SetFeedback(
@@ -425,24 +412,16 @@ public class EHRUI : MonoBehaviour
                 return;
             }
 
-
-            // Both fields exist -> try to pass Gate 2
             TryCompleteScenarioGate();
-
+			
             return;
         }
-
-
-        // NOT CURRENTLY AT A DOCUMENTATION GATE
 
         SetFeedback(
             "Documentation saved.\n" +
             "No documentation gate is currently active."
         );
     }
-
-
-    // GATE HELPER
 
     private void TryCompleteScenarioGate()
     {
@@ -502,9 +481,7 @@ public class EHRUI : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
     }
-
-    // FEEDBACK HELPER
-
+	
     private void SetFeedback(string message)
     {
         if (feedbackText != null)

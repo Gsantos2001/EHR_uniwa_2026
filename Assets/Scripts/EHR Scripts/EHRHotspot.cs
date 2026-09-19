@@ -20,13 +20,11 @@ public class EHRHotspot : MonoBehaviour
 
     public void OpenEHR()
     {
-        // 1. Zoom/Focus camera on the hotspot screen
         if (cameraController != null && focusPoint != null && focusPoint.cameraFocusTarget != null)
         {
             cameraController.FocusOnTarget(focusPoint.cameraFocusTarget);
         }
-
-        // 2. Open UI
+		
         if (ehrUI != null)
         {
             ehrUI.OpenEHR();

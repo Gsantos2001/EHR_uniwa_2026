@@ -67,7 +67,6 @@ public class Interactor : MonoBehaviour
         if (!isFocused && activeFocusedPoint != null)
             activeFocusedPoint = null;
 
-        // Q = Online Help
         if (Keyboard.current != null &&
             Keyboard.current.qKey.wasPressedThisFrame)
         {
@@ -113,7 +112,6 @@ public class Interactor : MonoBehaviour
         if (onlineHelpUI == null)
             return;
 
-        // Αν υπάρχει ενεργό hotspot, εμφάνισε το δικό του help.
         if (interactedHotspot != null)
         {
             HotspotOnlineHelp hotspotHelp =
@@ -136,7 +134,6 @@ public class Interactor : MonoBehaviour
             }
         }
 
-        // Διαφορετικά εμφάνισε το γενικό help.
         onlineHelpUI.ToggleGeneralHelp();
     }
 
@@ -340,7 +337,6 @@ public class Interactor : MonoBehaviour
         if (currentHoveredHotspot == null)
             return;
 
-        // Αποθήκευση του hotspot που χρησιμοποίησε ο παίκτης.
         interactedHotspot = currentHoveredHotspot;
 
         HotspotObject hotspotInfo =
@@ -352,7 +348,6 @@ public class Interactor : MonoBehaviour
                 currentHoveredHotspot.GetComponent<HotspotObject>();
         }
 
-        // EHR
         EHRHotspot ehrHotspot =
             currentHoveredHotspot.GetComponentInParent<EHRHotspot>();
 
@@ -393,8 +388,6 @@ public class Interactor : MonoBehaviour
 
             return;
         }
-
-        // OTHER HOTSPOTS
 
         bool isPatient =
             hotspotInfo != null &&
@@ -465,8 +458,6 @@ public class Interactor : MonoBehaviour
             );
         }
 
-        // DIAL
-
         DialKnobController dial =
             currentHoveredHotspot
             .GetComponentInParent<DialKnobController>();
@@ -484,8 +475,6 @@ public class Interactor : MonoBehaviour
             return;
         }
 
-        // CALL BUTTON
-
         CallButton button =
             currentHoveredHotspot
             .GetComponentInParent<CallButton>();
@@ -495,8 +484,6 @@ public class Interactor : MonoBehaviour
             button.PressButton();
         }
 
-        // SEND HOTSPOT TO SCENARIO
-
         if (hotspotInfo != null &&
             scenarioEngine != null)
         {
@@ -504,8 +491,6 @@ public class Interactor : MonoBehaviour
                 hotspotInfo.hotspotId
             );
         }
-
-        // EXIT CAMERA FOCUS
 
         if (cameraController != null &&
             cameraController.IsFocused)

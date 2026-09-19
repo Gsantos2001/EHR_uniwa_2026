@@ -16,7 +16,6 @@ public class PatientVitals : MonoBehaviour
     public float RespiratoryRate => respiratoryRate;
     public float Temperature => temperature;
 
-    // ΠΡΟΣΘΗΚΗ: Κρατάμε τις παλιές μεταβλητές για να μην βγάζουν error τα PatientStatus, PatientTreatment κλπ.
     public float SystolicPressure { get; private set; } = 120f;
     public float DiastolicPressure { get; private set; } = 80f;
 
@@ -34,12 +33,10 @@ public class PatientVitals : MonoBehaviour
         VitalsChanged();
     }
 
-    // Η ΝΕΑ μέθοδος για το JSON
     public void SetBloodPressure(string value)
     {
         bloodPressure = value;
 
-        // Προσπαθούμε να ενημερώσουμε και τις παλιές μεταβλητές αν το κείμενο είναι στη μορφή "125/80"
         if (!string.IsNullOrEmpty(value) && value.Contains("/"))
         {
             string[] parts = value.Split('/');
@@ -53,7 +50,6 @@ public class PatientVitals : MonoBehaviour
         VitalsChanged();
     }
 
-    // Η ΠΑΛΙΑ μέθοδος για να μην χτυπάνε error τα παλιά σου scripts
     public void SetBloodPressure(float systolic, float diastolic)
     {
         SystolicPressure = Mathf.Clamp(systolic, 0f, 250f);
@@ -123,7 +119,6 @@ public class PatientVitals : MonoBehaviour
             }
         }
 
-        // Μία μόνο ειδοποίηση αφού έχουν φορτωθεί ΟΛΑ.
         VitalsChanged();
     }
 

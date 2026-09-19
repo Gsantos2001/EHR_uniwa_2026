@@ -82,7 +82,6 @@ public class HotspotCameraController : MonoBehaviour
         if (!isFocused)
             return;
 
-        // Auto-close EHR UI when backing out of camera focus
         EHRUI ehrUI = FindObjectOfType<EHRUI>();
 
         if (ehrUI != null)
@@ -90,7 +89,6 @@ public class HotspotCameraController : MonoBehaviour
             ehrUI.CloseEHR();
         }
 
-        // Κλείσε το Online Help κατά την έξοδο από το focus.
         if (onlineHelpUI != null &&
             onlineHelpUI.IsHelpVisible)
         {
@@ -164,7 +162,6 @@ public class HotspotCameraController : MonoBehaviour
 
         isFocused = false;
 
-        // Καθαρισμός του hotspot μετά την έξοδο.
         if (interactor != null)
         {
             interactor.ClearInteractedHotspot();

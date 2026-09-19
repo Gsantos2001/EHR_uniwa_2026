@@ -90,7 +90,6 @@ public class WaveformLineRenderer : MaskableGraphic
         switch (waveType)
         {
             case WaveType.ECG:
-                // PQRST Wave simulation using Gaussian pulses
                 float pWave = 0.15f * Mathf.Exp(-Mathf.Pow((t - 0.15f) / 0.03f, 2f));
                 float qWave = -0.15f * Mathf.Exp(-Mathf.Pow((t - 0.23f) / 0.015f, 2f));
                 float rWave = 1.00f * Mathf.Exp(-Mathf.Pow((t - 0.25f) / 0.012f, 2f));
@@ -99,13 +98,11 @@ public class WaveformLineRenderer : MaskableGraphic
                 return pWave + qWave + rWave + sWave + tWave;
 
             case WaveType.SpO2:
-                // Plethysmograph Wave simulation
                 float systolic = Mathf.Sin(t * Mathf.PI * 2f) * Mathf.Clamp01(Mathf.Sin(t * Mathf.PI));
                 float dicroticNotch = 0.2f * Mathf.Sin((t - 0.35f) * Mathf.PI * 4f);
                 return Mathf.Max(0, systolic + dicroticNotch);
 
             case WaveType.Respiration:
-                // Smooth sine wave for breathing
                 return Mathf.Sin(t * Mathf.PI * 2f) * 0.5f;
 
             case WaveType.Flatline:

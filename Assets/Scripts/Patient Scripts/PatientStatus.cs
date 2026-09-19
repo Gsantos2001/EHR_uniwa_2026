@@ -15,9 +15,6 @@ public class PatientStatus : MonoBehaviour
     [Header("Patient")]
     public PatientVitals patient;
 
-
-
-    // WARNING THRESHOLDS
     [Header("Heart Rate - Warning")]
     public float warningHeartRateHigh = 120f;
     public float warningHeartRateLow = 50f;
@@ -33,9 +30,6 @@ public class PatientStatus : MonoBehaviour
     public float warningSystolicHigh = 150f;
     public float warningDiastolicHigh = 95f;
 
-
-
-    // CRITICAL THRESHOLDS
     [Header("Heart Rate - Critical")]
     public float criticalHeartRateHigh = 150f;
     public float criticalHeartRateLow = 35f;
@@ -51,13 +45,9 @@ public class PatientStatus : MonoBehaviour
     public float criticalSystolicHigh = 180f;
     public float criticalDiastolicHigh = 120f;
 
-
-
-    // CURRENT CONDITION
     public PatientCondition CurrentCondition { get; private set; }
 
     public event Action<PatientCondition> OnConditionChanged;
-
 
     private void Start()
     {
@@ -69,7 +59,6 @@ public class PatientStatus : MonoBehaviour
         EvaluateCondition();
     }
 
-
     private void OnDestroy()
     {
         if (patient != null)
@@ -78,9 +67,6 @@ public class PatientStatus : MonoBehaviour
         }
     }
 
-
-
-    // EVALUATE PATIENT
     public void EvaluateCondition()
     {
         PatientCondition newCondition;
@@ -114,9 +100,6 @@ public class PatientStatus : MonoBehaviour
         }
     }
 
-
-
-    // EXPIRED
     private bool IsExpired()
     {
         return patient.HeartRate <= 0f &&
@@ -125,48 +108,33 @@ public class PatientStatus : MonoBehaviour
                patient.DiastolicPressure <= 0f;
     }
 
-
-
-    // CRITICAL
     private bool IsCritical()
     {
         return
 
-            // Heart Rate
             patient.HeartRate >= criticalHeartRateHigh ||
             patient.HeartRate <= criticalHeartRateLow ||
 
-            // Oxygen
             patient.OxygenSaturation <= criticalOxygenLow ||
 
-            // Blood Pressure Too Low
             patient.SystolicPressure <= criticalSystolicLow ||
             patient.DiastolicPressure <= criticalDiastolicLow ||
 
-            // Blood Pressure Too High
             patient.SystolicPressure >= criticalSystolicHigh ||
             patient.DiastolicPressure >= criticalDiastolicHigh;
     }
 
-
-
-    // WARNING
     private bool IsWarning()
     {
         return
-
-            // Heart Rate
             patient.HeartRate >= warningHeartRateHigh ||
             patient.HeartRate <= warningHeartRateLow ||
 
-            // Oxygen
             patient.OxygenSaturation <= warningOxygenLow ||
 
-            // Blood Pressure Too Low
             patient.SystolicPressure <= warningSystolicLow ||
             patient.DiastolicPressure <= warningDiastolicLow ||
 
-            // Blood Pressure Too High
             patient.SystolicPressure >= warningSystolicHigh ||
             patient.DiastolicPressure >= warningDiastolicHigh;
     }

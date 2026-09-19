@@ -62,7 +62,6 @@ public class PauseMenu : MonoBehaviour
         if (playerCam != null)
             playerCam.inputEnabled = false;
 
-        // Ελευθερώνει το mouse για το Pause Menu
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

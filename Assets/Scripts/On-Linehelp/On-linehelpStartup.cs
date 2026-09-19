@@ -19,7 +19,6 @@ public class OnlineHelpStartUpMessage : MonoBehaviour
 
         helpText.text = message;
 
-        // Δεν κάνει αλλαγή γραμμής
         helpText.textWrappingMode = TextWrappingModes.NoWrap;
         helpText.overflowMode = TextOverflowModes.Overflow;
 

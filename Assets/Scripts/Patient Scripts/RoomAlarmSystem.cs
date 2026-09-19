@@ -32,7 +32,6 @@ public class RoomAlarmSystem : MonoBehaviour
             return;
         }
 
-        // Ακούμε το δυναμικό event του JSON Engine
         scenarioEngine.OnAlarmStateChanged += HandleAlarmState;
     }
 
@@ -61,7 +60,6 @@ public class RoomAlarmSystem : MonoBehaviour
 
     private void HandleAlarmState(bool isActive)
     {
-        // Αν το ScenarioEngine (βάσει JSON) πει ότι έχουμε συναγερμό
         if (isActive)
         {
             StartAlarm(criticalColor, criticalIntensity, criticalAlarm);

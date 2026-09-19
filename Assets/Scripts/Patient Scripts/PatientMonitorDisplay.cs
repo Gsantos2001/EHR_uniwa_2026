@@ -8,7 +8,6 @@ public class PatientMonitorDisplay : MonoBehaviour
     [Header("Monitor Screen")]
     public Renderer screenRenderer;
 
-    [Tooltip("Usually _BaseMap for URP or _MainTex for Standard materials.")]
     public string textureProperty = "_BaseMap";
 
     [Header("Monitor Textures")]

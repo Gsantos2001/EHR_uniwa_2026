@@ -37,11 +37,6 @@ public class OnlineHelpUI : MonoBehaviour
     private bool previousPlayerCamEnabled;
     private bool cameraStateSaved;
 
-
-    
-    // START
-    
-
     private void Start()
     {
         if (playerCam == null)
@@ -67,18 +62,11 @@ public class OnlineHelpUI : MonoBehaviour
         IsHelpVisible = false;
         cursorStateSaved = false;
     }
-
-
     
-    // GENERAL HELP
-    
-
     public void ShowGeneralHelp()
     {
         SaveCursorState();
 
-        // Πρώτα ανοίγουμε το panel ώστε το Unity
-        // να μπορεί να υπολογίσει το layout.
         if (generalHelpPanel != null)
         {
             generalHelpPanel.SetActive(true);
@@ -89,7 +77,6 @@ public class OnlineHelpUI : MonoBehaviour
             hotspotHelpPanel.SetActive(false);
         }
 
-        // Μετά βάζουμε το κείμενο.
         if (generalHelpText != null)
         {
             generalHelpText.text = generalHelpMessage;
@@ -109,8 +96,7 @@ public class OnlineHelpUI : MonoBehaviour
         {
             playerCam.enabled = false;
         }
-
-        // Περιμένουμε το layout να δημιουργηθεί σωστά.
+		
         StartCoroutine(
             RefreshHelpLayout(
                 generalScrollRect,
@@ -119,16 +105,10 @@ public class OnlineHelpUI : MonoBehaviour
         );
     }
 
-
-    
-    // HOTSPOT HELP
-    
-
     public void ShowHotspotHelp(string message)
     {
         SaveCursorState();
 
-        // Πρώτα ανοίγουμε το σωστό panel.
         if (hotspotHelpPanel != null)
         {
             hotspotHelpPanel.SetActive(true);
@@ -139,7 +119,6 @@ public class OnlineHelpUI : MonoBehaviour
             generalHelpPanel.SetActive(false);
         }
 
-        // Μετά βάζουμε το κείμενο.
         if (hotspotHelpText != null)
         {
             hotspotHelpText.text = message;
@@ -168,11 +147,6 @@ public class OnlineHelpUI : MonoBehaviour
         );
     }
 
-
-    
-    // HIDE HELP
-    
-
     public void HideHelp()
     {
         if (generalHelpPanel != null)
@@ -194,11 +168,6 @@ public class OnlineHelpUI : MonoBehaviour
 
         RestoreCursorState();
     }
-
-
-    
-    // TOGGLE
-    
 
     public void ToggleGeneralHelp()
     {
@@ -225,11 +194,6 @@ public class OnlineHelpUI : MonoBehaviour
         }
     }
 
-
-    
-    // CURSOR / CAMERA STATE
-    
-
     private void SaveCursorState()
     {
         if (cursorStateSaved)
@@ -253,7 +217,6 @@ public class OnlineHelpUI : MonoBehaviour
 
         cursorStateSaved = true;
     }
-
 
     private void RestoreCursorState()
     {
@@ -280,10 +243,6 @@ public class OnlineHelpUI : MonoBehaviour
     }
 
 
-    
-    // REFRESH SCROLL / LAYOUT
-    
-
     private IEnumerator RefreshHelpLayout(
         ScrollRect scrollRect,
         TextMeshProUGUI helpText)
@@ -294,22 +253,16 @@ public class OnlineHelpUI : MonoBehaviour
             yield break;
         }
 
-        // Περιμένουμε ένα frame ώστε το panel
-        // να έχει ενεργοποιηθεί πλήρως.
         yield return null;
 
-        // Αναγκάζουμε το TMP να υπολογίσει
-        // το πραγματικό preferred height.
         helpText.ForceMeshUpdate();
 
         Canvas.ForceUpdateCanvases();
 
-        // Rebuild του ίδιου του Text.
         LayoutRebuilder.ForceRebuildLayoutImmediate(
             helpText.rectTransform
         );
 
-        // Rebuild του Content του Scroll View.
         if (scrollRect.content != null)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(
@@ -319,7 +272,6 @@ public class OnlineHelpUI : MonoBehaviour
 
         Canvas.ForceUpdateCanvases();
 
-        // Το help ξεκινά πάντα από την κορυφή.
         scrollRect.StopMovement();
 
         scrollRect.verticalNormalizedPosition = 1f;

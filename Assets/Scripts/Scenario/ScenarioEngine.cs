@@ -15,7 +15,6 @@ public class ScenarioEngine : MonoBehaviour
     public EHRManager ehrManager;
 
     [Header("Scenario Data")]
-    [Tooltip("Όνομα του JSON αρχείου μέσα στο StreamingAssets.")]
     public string scenarioFileName = "icu_scenario.json";
 
     [Header("Logging")]
@@ -52,14 +51,11 @@ public class ScenarioEngine : MonoBehaviour
         }
     }
 
-    // Game State
     private int currentScore;
     private Dictionary<string, bool> stateFlags;
 
-    // Coroutines
     private Coroutine timeoutCoroutine;
 
-    // Events για να ακούει το UI & τα Alarms
     public delegate void NodeChangedHandler(ScenarioNode newNode);
     public event NodeChangedHandler OnNodeChanged;
 
@@ -69,7 +65,6 @@ public class ScenarioEngine : MonoBehaviour
     public delegate void ScoreChangedHandler(int newScore);
     public event ScoreChangedHandler OnScoreChanged;
 
-    // Event για το alarm system
     public delegate void AlarmStateHandler(bool isActive);
     public event AlarmStateHandler OnAlarmStateChanged;
 
@@ -181,10 +176,8 @@ public class ScenarioEngine : MonoBehaviour
 
         OnScoreChanged?.Invoke(currentScore);
 
-        // Ελέγχουμε τους global rules αμέσως
         EvaluateGlobalRules();
 
-        // Ξεκινάμε από τον πρώτο κόμβο του JSON
         GoToNode(currentScenario.nodes[0].id);
     }
 
@@ -332,7 +325,6 @@ public class ScenarioEngine : MonoBehaviour
             return;
         }
 
-        // Decision Node
         if (currentNode.type == "decision")
         {
             var option =
@@ -358,7 +350,6 @@ public class ScenarioEngine : MonoBehaviour
             }
         }
 
-        // Gate Node
         else if (currentNode.type == "gate")
         {
             if (currentNode.target_hotspot ==
@@ -661,8 +652,6 @@ public class ScenarioEngine : MonoBehaviour
                 {
                     isAlarmActive = true;
 
-                    // Toast μόνο όταν ο συναγερμός
-                    // ενεργοποιείται πρώτη φορά
                     if (!wasAlarmActive)
                     {
                         foreach (var effect in

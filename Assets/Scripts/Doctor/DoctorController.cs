@@ -85,6 +85,6 @@ public class DoctorController : MonoBehaviour
             yield return null;
         }
         
-        transform.rotation = targetRotation; // Ensure exact final alignment
+        transform.rotation = targetRotation;
     }
 }
