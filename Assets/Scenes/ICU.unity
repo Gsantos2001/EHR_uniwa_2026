@@ -11204,7 +11204,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!1 &1013249421
 GameObject:
@@ -22937,9 +22937,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScenarioEngine
   patientVitals: {fileID: 805782155}
   ehrManager: {fileID: 1094031608}
-  jsonScenarioFile: {fileID: 4900000, guid: 57a8ca3f84a986845a5c9225706f9419, type: 3}
-  debriefManager: {fileID: 133935242}
+  scenarioFileName: icu_scenario.json
   scenarioLogger: {fileID: 1246262578}
+  debriefManager: {fileID: 133935242}
 --- !u!114 &1889037177
 MonoBehaviour:
   m_ObjectHideFlags: 0
