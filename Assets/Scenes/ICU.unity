@@ -14278,6 +14278,10 @@ PrefabInstance:
       propertyPath: transitionSpeed
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 332937049252157023, guid: 4473148ccfb68564fbbc086b6970d518, type: 3}
+      propertyPath: hotspotCameraController
+      value: 
+      objectReference: {fileID: 2049762890}
     - target: {fileID: 356445514670247521, guid: 4473148ccfb68564fbbc086b6970d518, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -17548,6 +17552,7 @@ MonoBehaviour:
   volumeSlider: {fileID: 1764694207}
   audioMixer: {fileID: 24100000, guid: 748556afed2d7e84c9ffbcb096f9c221, type: 2}
   crosshair: {fileID: 1507049074}
+  hotspotCameraController: {fileID: 2049762890}
   playerCam: {fileID: 2049762893}
 --- !u!4 &1509167829
 Transform:

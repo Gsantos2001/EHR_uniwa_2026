@@ -8,6 +8,7 @@ public class HotspotCameraController : MonoBehaviour
     [Header("Scripts to Disable on Focus")]
     public PlayerMovement playerMovement;
     public PlayerCam playerCam;
+    public HotspotCameraController hotspotCameraController;
     public Interactor interactor;
 
     [Header("UI & Visual Elements to Hide on Focus")]
@@ -19,6 +20,8 @@ public class HotspotCameraController : MonoBehaviour
 
     [Header("Online Help")]
     public OnlineHelpUI onlineHelpUI;
+
+   
 
     private Transform originalParent;
     private Vector3 originalLocalPos;
@@ -45,7 +48,7 @@ public class HotspotCameraController : MonoBehaviour
             onlineHelpUI = FindObjectOfType<OnlineHelpUI>();
     }
 
-    private void Update()
+   /* private void Update()
     {
         if (isFocused &&
             ((Keyboard.current != null &&
@@ -55,7 +58,7 @@ public class HotspotCameraController : MonoBehaviour
         {
             ExitFocus();
         }
-    }
+    }*/
 
     public void FocusOnTarget(Transform focusTarget)
     {
@@ -89,6 +92,7 @@ public class HotspotCameraController : MonoBehaviour
             ehrUI.CloseEHR();
         }
 
+        
         if (onlineHelpUI != null &&
             onlineHelpUI.IsHelpVisible)
         {

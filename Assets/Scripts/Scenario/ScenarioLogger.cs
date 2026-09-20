@@ -84,21 +84,56 @@ public class ScenarioLogger : MonoBehaviour
             ) +
             ".json";
 
+        string exportFolder;
+
+#if UNITY_EDITOR
+
+        
+        exportFolder =
+            Application.persistentDataPath;
+
+#else
+
+        
+        exportFolder =
+            Path.Combine(
+                Application.dataPath,
+                "ScenarioLogs"
+            );
+
+#endif
+
+        
+        if (!Directory.Exists(exportFolder))
+        {
+            Directory.CreateDirectory(exportFolder);
+        }
+
         string path =
             Path.Combine(
-                Application.persistentDataPath,
+                exportFolder,
                 fileName
             );
 
-        File.WriteAllText(
-            path,
-            json
-        );
+        try
+        {
+            File.WriteAllText(
+                path,
+                json
+            );
 
-        Debug.Log(
-            "Scenario log exported to: " +
-            path
-        );
+            Debug.Log(
+                "Scenario log exported to: " +
+                path
+            );
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(
+                "Failed to export scenario log.\n" +
+                ex.Message
+            );
+        }
     }
 
     public void ClearLog()

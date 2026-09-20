@@ -5,6 +5,7 @@ using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using System.Collections;
 
+
 public class PauseMenu : MonoBehaviour
 {
     [Header("UI")]
@@ -16,10 +17,11 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Player")]
     public GameObject crosshair;
+    public HotspotCameraController hotspotCameraController;
     public PlayerCam playerCam;
 
     private bool isPaused = false;
-
+    private bool isWaitingForUnfocus = false;
     void Start()
     {
         pauseMenuPanel.SetActive(false);
@@ -35,21 +37,55 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current != null &&
+            Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            
+            if (isWaitingForUnfocus)
+                return;
+
+           
             if (isPaused)
             {
                 ResumeGame();
+                return;
             }
-            else
+
+            
+            if (hotspotCameraController != null &&
+                hotspotCameraController.IsFocused)
             {
-                PauseGame();
+                StartCoroutine(UnfocusThenPause());
+                return;
             }
+
+           
+            PauseGame();
         }
     }
 
-    public void PauseGame()
+    private IEnumerator UnfocusThenPause()
     {
+        isWaitingForUnfocus = true;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        hotspotCameraController.ExitFocus();
+
+        yield return new WaitForSeconds(0.8f);
+
+        PauseGame();
+
+        isWaitingForUnfocus = false;
+    }
+
+    public void PauseGame()
+    {   if (hotspotCameraController != null &&
+            hotspotCameraController.IsFocused)
+        {
+            hotspotCameraController.ExitFocus();
+        }
         isPaused = true;
 
         pauseMenuPanel.SetActive(true);
@@ -62,6 +98,7 @@ public class PauseMenu : MonoBehaviour
         if (playerCam != null)
             playerCam.inputEnabled = false;
 
+        
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
